@@ -1,56 +1,180 @@
-# Welcome to your Expo app 👋
+# DevSnippets AI
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+DevSnippets AI is a modern React Native application built with Expo that helps developers store, organize, manage, and interact with code snippets efficiently. The application combines snippet management with AI-powered assistance to improve developer productivity.
 
-## Get started
+## Features
 
-1. Install dependencies
+### Snippet Management
 
-   ```bash
-   npm install
-   ```
+* Create code snippets
+* Edit existing snippets
+* Delete snippets
+* View snippet details
+* Organize snippets using tags
+* Store snippets by programming language
 
-2. Start the app
+### AI Assistant
 
-   ```bash
-   npx expo start
-   ```
+* AI-powered coding assistance
+* Code explanations
+* Programming help and guidance
+* Developer-focused conversations
 
-In the output, you'll find options to open the app in a
+### Modern User Experience
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+* Clean and responsive UI
+* Premium dark theme
+* Custom modal components
+* Smooth navigation
+* Mobile-first design
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Tech Stack
 
-## Get a fresh project
+### Frontend
 
-When you're ready, run:
+* React Native
+* Expo
+* TypeScript
+* Expo Router
 
-```bash
-npm run reset-project
+
+### UI Components
+
+* React Native Components
+* Lucide React Native Icons
+
+## Project Structure
+
+```text
+app/
+├── (tabs)/
+├── snippets/
+├── auth/
+└── ai/
+
+services/
+├── snippet.service.ts
+└── ai.service.ts
+
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Prerequisites
 
-### Other setup steps
+* Node.js
+* npm or yarn
+* Expo CLI
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### Clone Repository
 
-## Learn more
+```bash
+git clone https://github.com/your-username/devsnippets-ai.git
 
-To learn more about developing your project with Expo, look at the following resources:
+cd devsnippets-ai
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Install Dependencies
 
-## Join the community
+```bash
+npm install
+```
 
-Join our community of developers creating universal apps.
+### Configure Environment Variables
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Create a `.env` file in the root directory:
+
+### Start Development Server
+
+```bash
+npx expo start
+```
+
+Run on:
+
+```bash
+Android Emulator
+iOS Simulator
+Expo Go
+Physical Device
+```
+
+## Available Features
+
+### Create Snippet
+
+Users can create snippets by providing:
+
+* Title
+* Programming Language
+* Tags
+* Code Content
+
+### Edit Snippet
+
+Users can update:
+
+* Title
+* Language
+* Tags
+* Source Code
+
+### Delete Snippet
+
+Users can remove snippets permanently from storage.
+
+### Search and Organization
+
+* Language-based organization
+* Tag-based categorization
+* Quick snippet access
+
+
+## Future Improvements
+
+* Syntax highlighting
+* Snippet sharing
+* Favorites and bookmarks
+* Code execution support
+* Folder organization
+* AI code generation
+* AI code review
+* Cloud backup
+* Team collaboration
+* Export and import snippets
+
+## Performance Optimizations
+
+* Optimized React rendering
+* Lazy loading where applicable
+* Responsive mobile layouts
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+
+```bash
+git checkout -b feature/new-feature
+```
+
+3. Commit changes
+
+```bash
+git commit -m "Add new feature"
+```
+
+4. Push changes
+
+```bash
+git push origin feature/new-feature
+```
+
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Author
+
+Developed as a developer productivity platform focused on snippet management and AI-assisted coding workflows.
+
