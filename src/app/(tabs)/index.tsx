@@ -4,14 +4,49 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
+  Alert,
+  ScrollView,
 } from "react-native";
 import { Link } from "expo-router";
 import React from "react";
-import { Star, BarChart2 } from "lucide-react-native";
+import { Star, BarChart2, FileUp, FileDown } from "lucide-react-native";
+import { importSnippetFromFile, exportSnippetsToFile } from "@/services/file.service";
 
 export default function Index() {
+  const handleImport = async () => {
+    try {
+      const res = await importSnippetFromFile();
+      if (res.success) {
+        Alert.alert("Import Successful", res.message);
+      } else if (res.message !== "Import cancelled by user") {
+        Alert.alert("Import Info", res.message);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An unexpected error occurred during file import.");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await exportSnippetsToFile();
+      if (!res.success && res.message !== "No snippets found in database to export") {
+        Alert.alert("Export Info", res.message);
+      } else if (!res.success) {
+        Alert.alert("Export Empty", res.message);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "An unexpected error occurred during file export.");
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
       <StatusBar barStyle="light-content" />
 
       {/* Hero Section */}
@@ -66,7 +101,44 @@ export default function Index() {
           </TouchableOpacity>
         </Link>
       </View>
-    </View>
+
+      {/* File Utilities */}
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>File Manager</Text>
+
+      <View style={styles.gridContainer}>
+        {/* Import Card */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.gridCard}
+          onPress={handleImport}
+        >
+          <View style={styles.cardGlowGreen} />
+          <View style={[styles.iconContainer, { backgroundColor: "rgba(46,204,113,0.12)" }]}>
+            <FileUp color="#2ecc71" size={22} />
+          </View>
+          <View>
+            <Text style={styles.cardTitle}>Import Code</Text>
+            <Text style={styles.cardText}>Pick local code files</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* Export Card */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.gridCard}
+          onPress={handleExport}
+        >
+          <View style={styles.cardGlowOrange} />
+          <View style={[styles.iconContainer, { backgroundColor: "rgba(230,126,34,0.12)" }]}>
+            <FileDown color="#e67e22" size={22} />
+          </View>
+          <View>
+            <Text style={styles.cardTitle}>Export Code</Text>
+            <Text style={styles.cardText}>Share snippets backup</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -76,9 +148,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0b0b0fad",
+  },
+
+  content: {
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom: 100,
+    paddingBottom: 130,
   },
 
   hero: {
@@ -180,6 +255,26 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     backgroundColor: "rgba(52,152,219,0.05)",
+    borderRadius: 999,
+    top: -30,
+    right: -30,
+  },
+
+  cardGlowGreen: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    backgroundColor: "rgba(46,204,113,0.05)",
+    borderRadius: 999,
+    top: -30,
+    right: -30,
+  },
+
+  cardGlowOrange: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    backgroundColor: "rgba(230,126,34,0.05)",
     borderRadius: 999,
     top: -30,
     right: -30,

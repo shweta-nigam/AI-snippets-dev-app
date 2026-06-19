@@ -22,6 +22,11 @@ export const initDB = async () => {
             duration INTEGER NOT NULL,
             createdAt TEXT DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT
+            );
             `)
          console.log("Database initialized");     
     } catch (error) {

@@ -21,19 +21,21 @@ export default function SnippetsScreen() {
   const [snippets, setSnippets] = useState<ISnippet[]>([]);
   const [filterSnippets, setFilterSnippets] = useState<ISnippet[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(20);
 
   async function loadSnippets() {
     const data = await getAllSnippets();
-
     setSnippets(data as ISnippet[]);
     setFilterSnippets(data as ISnippet[]);
   }
 
   function handleSearch(text: string) {
     setSearchQuery(text);
+    setVisibleCount(20); // Reset pagination on search
 
     if (!text.trim()) {
       setFilterSnippets(snippets);
+      return;
     }
 
     const filtered = snippets.filter((snippet) => {
@@ -47,12 +49,22 @@ export default function SnippetsScreen() {
     setFilterSnippets(filtered);
   }
 
-useFocusEffect(
-  useCallback(() => {
-    loadSnippets();
-  }, [])
-);
-// note: Without useCallback, a NEW function gets created on every render. which is bad. so we use useCallback and It MEMORIZES the function.
+  useFocusEffect(
+    useCallback(() => {
+      loadSnippets();
+    }, [])
+  );
+
+  const getPreviewCode = (codeStr: string) => {
+    if (!codeStr) return "";
+    const lines = codeStr.split("\n");
+    const previewLines = lines.slice(0, 5); // Take first 5 lines
+    let preview = previewLines.join("\n");
+    if (lines.length > 5) {
+      preview += "\n...";
+    }
+    return preview;
+  };
 
   return (
     <View style={styles.container}>
@@ -61,7 +73,6 @@ useFocusEffect(
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.heading}>All Snippets</Text>
-
         <Text style={styles.subHeading}>Browse your saved code collection</Text>
       </View>
 
@@ -75,7 +86,7 @@ useFocusEffect(
 
       {/* List */}
       <FlatList
-        data={filterSnippets}
+        data={filterSnippets.slice(0, visibleCount)}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -84,11 +95,21 @@ useFocusEffect(
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyTitle}>No snippets found</Text>
-
             <Text style={styles.emptyText}>
               Start saving snippets to build your library.
             </Text>
           </View>
+        }
+        ListFooterComponent={
+          filterSnippets.length > visibleCount ? (
+            <TouchableOpacity
+              style={styles.loadMoreButton}
+              onPress={() => setVisibleCount((prev) => prev + 20)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loadMoreText}>Load More</Text>
+            </TouchableOpacity>
+          ) : null
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
@@ -97,7 +118,6 @@ useFocusEffect(
               style={styles.favoriteButton}
               onPress={async () => {
                 await toggleFavorite(item.id, item.isFavorite ? 0 : 1);
-
                 loadSnippets();
               }}
             >
@@ -116,6 +136,13 @@ useFocusEffect(
               <View style={styles.glow} />
 
               <Text style={styles.cardTitle}>{item.title}</Text>
+
+              {/* Code Preview */}
+              <View style={styles.codePreviewCard}>
+                <Text style={styles.codePreviewText}>
+                  {getPreviewCode(item.code)}
+                </Text>
+              </View>
 
               <View style={styles.metaRow}>
                 <View style={styles.languageBadge}>
@@ -148,7 +175,6 @@ const styles = StyleSheet.create({
     top: 16,
     right: 16,
     zIndex: 20,
-
     backgroundColor: "rgba(255,255,255,0.06)",
     padding: 8,
     borderRadius: 999,
@@ -174,7 +200,6 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
     overflow: "hidden",
-
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.05)",
   },
@@ -193,7 +218,24 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "700",
-    marginBottom: 18,
+    marginBottom: 10,
+    paddingRight: 35, // Prevent text overlapping the favorite button
+  },
+
+  codePreviewCard: {
+    backgroundColor: "#0B0B0F",
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.03)",
+  },
+
+  codePreviewText: {
+    color: "#C5C5CE",
+    fontFamily: "monospace",
+    fontSize: 11,
+    lineHeight: 16,
   },
 
   searchInput: {
@@ -207,6 +249,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 24,
   },
+
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -252,5 +295,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
     paddingHorizontal: 20,
+  },
+
+  loadMoreButton: {
+    backgroundColor: "#15151C",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    borderRadius: 18,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    marginBottom: 40,
+  },
+
+  loadMoreText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
   },
 });
