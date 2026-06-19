@@ -27,6 +27,7 @@ export default function AnalysisScreen() {
   const [totalStudyTime, setTotalStudyTime] = useState<number>(0);
   const [languages, setLanguages] = useState<{ language: string; count: number }[]>([]);
   const [sessions, setSessions] = useState<ISession[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
 
   async function loadStats() {
     // Load snippets count
@@ -42,6 +43,7 @@ export default function AnalysisScreen() {
     setTotalCodingTime(stats.totalCoding);
     setTotalStudyTime(stats.totalStudy);
     setSessions(stats.sessions);
+    setVisibleCount(20);
   }
 
   useFocusEffect(
@@ -194,34 +196,46 @@ export default function AnalysisScreen() {
             <Text style={styles.emptyText}>No focus sessions logged yet. Head to the Timer tab to start tracking!</Text>
           </View>
         ) : (
-          sessions.map((item) => (
-            <View key={item.id} style={styles.historyCard}>
-              <View style={styles.historyCardLeft}>
-                <View
-                  style={[
-                    styles.historyIconContainer,
-                    {
-                      backgroundColor:
-                        item.type === "Coding"
-                          ? "rgba(111,29,58,0.15)"
-                          : "rgba(52,152,219,0.15)",
-                    },
-                  ]}
-                >
-                  {item.type === "Coding" ? (
-                    <Terminal size={14} color="#D47A9A" />
-                  ) : (
-                    <BookOpen size={14} color="#3498db" />
-                  )}
+          <>
+            {sessions.slice(0, visibleCount).map((item) => (
+              <View key={item.id} style={styles.historyCard}>
+                <View style={styles.historyCardLeft}>
+                  <View
+                    style={[
+                      styles.historyIconContainer,
+                      {
+                        backgroundColor:
+                          item.type === "Coding"
+                            ? "rgba(111,29,58,0.15)"
+                            : "rgba(52,152,219,0.15)",
+                      },
+                    ]}
+                  >
+                    {item.type === "Coding" ? (
+                      <Terminal size={14} color="#D47A9A" />
+                    ) : (
+                      <BookOpen size={14} color="#3498db" />
+                    )}
+                  </View>
+                  <View>
+                    <Text style={styles.historyCardType}>{item.type} Session</Text>
+                    <Text style={styles.historyCardTime}>{formatTimeAgo(item.createdAt)}</Text>
+                  </View>
                 </View>
-                <View>
-                  <Text style={styles.historyCardType}>{item.type} Session</Text>
-                  <Text style={styles.historyCardTime}>{formatTimeAgo(item.createdAt)}</Text>
-                </View>
+                <Text style={styles.historyCardDuration}>{formatDurationLong(item.duration)}</Text>
               </View>
-              <Text style={styles.historyCardDuration}>{formatDurationLong(item.duration)}</Text>
-            </View>
-          ))
+            ))}
+
+            {sessions.length > visibleCount && (
+              <TouchableOpacity
+                style={styles.loadMoreButton}
+                onPress={() => setVisibleCount((prev) => prev + 20)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.loadMoreText}>Load More</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
     </ScrollView>
@@ -437,6 +451,24 @@ const styles = StyleSheet.create({
   historyCardDuration: {
     color: "#FFFFFF",
     fontSize: 14,
+    fontWeight: "700",
+  },
+
+  loadMoreButton: {
+    backgroundColor: "#15151C",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    borderRadius: 18,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    marginBottom: 20,
+  },
+
+  loadMoreText: {
+    color: "#FFFFFF",
+    fontSize: 13,
     fontWeight: "700",
   },
 });

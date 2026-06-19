@@ -27,14 +27,15 @@ export default function TimerScreen() {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [sessionType, setSessionType] = useState<"Coding" | "Study">("Coding");
   const [history, setHistory] = useState<ISession[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
 
   const intervalRef = useRef<any>(null);
 
   // Load history from DB
   async function loadHistory() {
     const data = await getAllSessions();
-    // Only show today's sessions in the Timer tab to keep it clean, or show all recent
     setHistory(data);
+    setVisibleCount(20);
   }
 
   useFocusEffect(
@@ -272,7 +273,7 @@ export default function TimerScreen() {
 
       {/* History List */}
       <FlatList
-        data={history}
+        data={history.slice(0, visibleCount)}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -283,6 +284,17 @@ export default function TimerScreen() {
             <Clock size={36} color="#444" style={{ marginBottom: 10 }} />
             <Text style={styles.emptyText}>No focus sessions logged yet today.</Text>
           </View>
+        }
+        ListFooterComponent={
+          history.length > visibleCount ? (
+            <TouchableOpacity
+              style={styles.loadMoreButton}
+              onPress={() => setVisibleCount((prev) => prev + 20)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loadMoreText}>Load More</Text>
+            </TouchableOpacity>
+          ) : null
         }
         renderItem={({ item }) => (
           <View style={styles.historyCard}>
@@ -552,6 +564,24 @@ const styles = StyleSheet.create({
   historyCardDuration: {
     color: "#FFFFFF",
     fontSize: 14,
+    fontWeight: "700",
+  },
+
+  loadMoreButton: {
+    backgroundColor: "#14141C",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+    borderRadius: 18,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    marginBottom: 30,
+  },
+
+  loadMoreText: {
+    color: "#FFFFFF",
+    fontSize: 13,
     fontWeight: "700",
   },
 });
