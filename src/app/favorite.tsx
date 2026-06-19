@@ -16,7 +16,7 @@ import {
   toggleFavorite,
 } from "@/services/snippet.service";
 
-import { Heart, Code2 } from "lucide-react-native";
+import { Heart, Code2, ChevronLeft } from "lucide-react-native";
 
 import { ISnippet } from "@/types/snippet";
 
@@ -27,7 +27,6 @@ export default function FavoriteScreen() {
 
   async function loadFavorites() {
     const data = await getFavoriteSnippets();
-
     setSnippets(data as ISnippet[]);
   }
 
@@ -43,8 +42,17 @@ export default function FavoriteScreen() {
 
       {/* Header */}
       <View style={styles.hero}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>FAVORITES</Text>
+        <View style={styles.headerRow}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+          >
+            <ChevronLeft size={24} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>FAVORITES</Text>
+          </View>
         </View>
 
         <Text style={styles.heading}>Favorite Snippets</Text>
@@ -61,7 +69,7 @@ export default function FavoriteScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingBottom: 140,
+          paddingBottom: 40,
         }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -103,7 +111,6 @@ export default function FavoriteScreen() {
                 style={styles.favoriteButton}
                 onPress={async () => {
                   await toggleFavorite(item.id, 0);
-
                   loadFavorites();
                 }}
               >
@@ -148,8 +155,26 @@ const styles = StyleSheet.create({
 
   hero: {
     paddingHorizontal: 20,
-    paddingTop: 55,
+    paddingTop: 60,
     paddingBottom: 25,
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 18,
+    gap: 12,
+  },
+
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
   },
 
   badge: {
@@ -160,7 +185,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    marginBottom: 18,
   },
 
   badgeText: {

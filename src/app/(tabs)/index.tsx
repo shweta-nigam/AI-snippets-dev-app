@@ -1,31 +1,15 @@
-import { getAllSnippets } from "@/services/snippet.service";
-import { useState } from "react";
 import {
   Text,
   View,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import { ISnippet } from "@/types/snippet";
-import { Link, useFocusEffect } from "expo-router";
+import { Link } from "expo-router";
 import React from "react";
+import { Star, BarChart2 } from "lucide-react-native";
 
 export default function Index() {
-  const [snippets, setSnippets] = useState<ISnippet[]>([]);
-
-  async function loadSnippets() {
-    const data = await getAllSnippets();
-    setSnippets(data as ISnippet[]);
-  }
-
-useFocusEffect(
-  React.useCallback(() => {
-    loadSnippets();
-  }, [])
-);
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -50,41 +34,38 @@ useFocusEffect(
         </Link>
       </View>
 
-      {/* Section Header */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Recent Snippets</Text>
-        <Text style={styles.sectionCount}>{snippets.length}</Text>
-      </View>
+      {/* Quick Access */}
+      <Text style={styles.sectionTitle}>Quick Access</Text>
 
-      {/* Snippets List */}
-      <FlatList
-        data={snippets}
-        keyExtractor={(item) => item.id.toString()}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: 40,
-        }}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No snippets yet</Text>
-            <Text style={styles.emptyText}>
-              Start building your personal snippet collection.
-            </Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
+      <View style={styles.gridContainer}>
+        {/* Favorites Card */}
+        <Link href="/favorite" asChild>
+          <TouchableOpacity activeOpacity={0.85} style={styles.gridCard}>
             <View style={styles.cardGlow} />
-
-            <Text style={styles.cardTitle}>{item.title}</Text>
-
-            <View style={styles.cardFooter}>
-              <View style={styles.dot} />
-              <Text style={styles.cardFooterText}>Saved Snippet</Text>
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(255,215,0,0.12)" }]}>
+              <Star color="#FFD700" size={22} fill="#FFD700" />
             </View>
-          </View>
-        )}
-      />
+            <View>
+              <Text style={styles.cardTitle}>Favorites</Text>
+              <Text style={styles.cardText}>Access starred snippets</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
+
+        {/* Analysis Card */}
+        <Link href="/analysis" asChild>
+          <TouchableOpacity activeOpacity={0.85} style={styles.gridCard}>
+            <View style={styles.cardGlowBlue} />
+            <View style={[styles.iconContainer, { backgroundColor: "rgba(52,152,219,0.12)" }]}>
+              <BarChart2 color="#3498db" size={22} />
+            </View>
+            <View>
+              <Text style={styles.cardTitle}>Analysis</Text>
+              <Text style={styles.cardText}>Track stats & focus time</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </View>
   );
 }
@@ -97,7 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0b0b0fad",
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom:100
+    paddingBottom: 100,
   },
 
   hero: {
@@ -143,7 +124,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 18,
     alignItems: "center",
-
     shadowColor: MERLOT,
     shadowOffset: {
       width: 0,
@@ -161,92 +141,68 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 18,
-  },
-
   sectionTitle: {
     color: "#FFFFFF",
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "700",
+    marginBottom: 16,
   },
 
-  sectionCount: {
-    color: "#CFA5B4",
-    fontSize: 14,
-    fontWeight: "600",
-    backgroundColor: "rgba(111,29,58,0.18)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
+  gridContainer: {
+    flexDirection: "row",
+    gap: 16,
   },
 
-  card: {
+  gridCard: {
+    flex: 1,
     backgroundColor: "#15151C",
     borderRadius: 24,
-    padding: 20,
-    marginBottom: 16,
-    overflow: "hidden",
+    padding: 18,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.05)",
+    overflow: "hidden",
+    height: 160,
+    justifyContent: "space-between",
   },
 
   cardGlow: {
     position: "absolute",
-    width: 140,
-    height: 140,
-    backgroundColor: "rgba(111,29,58,0.18)",
+    width: 100,
+    height: 100,
+    backgroundColor: "rgba(255,215,0,0.05)",
     borderRadius: 999,
-    top: -40,
-    right: -40,
+    top: -30,
+    right: -30,
+  },
+
+  cardGlowBlue: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    backgroundColor: "rgba(52,152,219,0.05)",
+    borderRadius: 999,
+    top: -30,
+    right: -30,
+  },
+
+  iconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   cardTitle: {
     color: "#FFFFFF",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
-    marginBottom: 18,
+    marginBottom: 4,
   },
 
-  cardFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: "#D47A9A",
-    marginRight: 8,
-  },
-
-  cardFooterText: {
-    color: "#9C9CA6",
-    fontSize: 13,
-    fontWeight: "500",
-  },
-
-  emptyContainer: {
-    marginTop: 80,
-    alignItems: "center",
-  },
-
-  emptyTitle: {
-    color: "#FFFFFF",
-    fontSize: 22,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-
-  emptyText: {
+  cardText: {
     color: "#8B8B95",
-    fontSize: 14,
-    textAlign: "center",
-    lineHeight: 22,
-    paddingHorizontal: 20,
+    fontSize: 12,
+    lineHeight: 16,
   },
 });

@@ -15,6 +15,13 @@ export const initDB = async () => {
             isFavorite INTEGER DEFAULT 0,
             createdAt TEXT DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            duration INTEGER NOT NULL,
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+            );
             `)
          console.log("Database initialized");     
     } catch (error) {

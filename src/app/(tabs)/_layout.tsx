@@ -9,6 +9,7 @@ import {
   Plus,
   Sparkles,
   Star,
+  Clock,
 } from "lucide-react-native";
 
 const MERLOT = "#6F1D3A";
@@ -174,11 +175,11 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* FAVORITE */}
+      {/* TIMER */}
       <Tabs.Screen
-        name="favorite"
+        name="timer"
         options={{
-          title: "Favorite",
+          title: "Timer",
 
           tabBarIcon: ({ color, focused }) => (
             <View
@@ -192,7 +193,7 @@ export default function TabsLayout() {
                 borderRadius: 999,
               }}
             >
-              <Star
+              <Clock
                 color={color}
                 size={focused ? 24 : 20}
                 strokeWidth={2.4}
