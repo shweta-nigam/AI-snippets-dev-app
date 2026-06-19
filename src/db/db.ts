@@ -9,6 +9,7 @@ export const initDB = async () => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             code TEXT NOT NULL,
+            imageUri TEXT,
             language TEXT,
             tags TEXT,
             isFavorite INTEGER DEFAULT 0,
