@@ -6,13 +6,28 @@ import {
   StatusBar,
   Alert,
   ScrollView,
+  Image,
 } from "react-native";
-import { Link } from "expo-router";
-import React from "react";
+import { Link, useFocusEffect } from "expo-router";
+import React, { useState } from "react";
 import { Star, BarChart2, FileUp, FileDown } from "lucide-react-native";
 import { importSnippetFromFile, exportSnippetsToFile } from "@/services/file.service";
+import { getUserProfile, IUserProfile } from "@/services/profile.service";
 
 export default function Index() {
+  const [profile, setProfile] = useState<IUserProfile | null>(null);
+
+  async function loadProfile() {
+    const data = await getUserProfile();
+    setProfile(data);
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadProfile();
+    }, [])
+  );
+
   const handleImport = async () => {
     try {
       const res = await importSnippetFromFile();
@@ -51,8 +66,17 @@ export default function Index() {
 
       {/* Hero Section */}
       <View style={styles.hero}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>AI Powered</Text>
+        <View style={styles.topHeader}>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>AI Powered</Text>
+          </View>
+          {profile && (
+            <Link href="/profile" asChild>
+              <TouchableOpacity activeOpacity={0.8} style={styles.avatarWrapper}>
+                <Image source={{ uri: profile.avatarUrl }} style={styles.avatarImage} />
+              </TouchableOpacity>
+            </Link>
+          )}
         </View>
 
         <Text style={styles.heading}>Dev Snippets AI</Text>
@@ -160,6 +184,36 @@ const styles = StyleSheet.create({
     marginBottom: 35,
   },
 
+  topHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  avatarWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#15151C",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.08)",
+    shadowColor: MERLOT,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  avatarImage: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#15151C",
+  },
+
   badge: {
     alignSelf: "flex-start",
     backgroundColor: "rgba(111,29,58,0.18)",
@@ -168,7 +222,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    marginBottom: 18,
   },
 
   badgeText: {

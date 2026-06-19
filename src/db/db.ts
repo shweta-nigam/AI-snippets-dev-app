@@ -27,8 +27,28 @@ export const initDB = async () => {
             key TEXT PRIMARY KEY,
             value TEXT
             );
+
+            CREATE TABLE IF NOT EXISTS user_profile (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL DEFAULT 'Developer',
+            role TEXT NOT NULL DEFAULT 'Software Engineer',
+            avatarUrl TEXT NOT NULL,
+            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+            );
             `)
-         console.log("Database initialized");     
+         console.log("Database initialized");
+
+         // Seed default user profile if empty
+         const profile = await db.getFirstAsync("SELECT * FROM user_profile");
+         if (!profile) {
+             const seed = Math.random().toString(36).substring(7);
+             const defaultAvatar = `https://api.dicebear.com/7.x/adventurer/png?seed=${seed}`;
+             await db.runAsync(
+                 "INSERT INTO user_profile (name, role, avatarUrl) VALUES (?, ?, ?)",
+                 ["Developer", "Software Engineer", defaultAvatar]
+             );
+             console.log("Default user profile seeded");
+         }
     } catch (error) {
        console.log("DB Init Error:", error); 
     }
