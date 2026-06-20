@@ -13,8 +13,26 @@ import { useLocalSearchParams, router } from "expo-router";
 import { ISnippet } from "@/types/snippet";
 
 import { getSnippetById } from "@/services/snippet.service";
+import SyntaxHighlighter from "react-native-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const MERLOT = "#6F1D3A";
+
+const getLanguage = (lang: string) => {
+  if (!lang) return "text";
+  const l = lang.toLowerCase().trim();
+  if (l === "c++" || l === "cpp") return "cpp";
+  if (l === "c#" || l === "csharp") return "csharp";
+  if (l === "js" || l === "javascript") return "javascript";
+  if (l === "ts" || l === "typescript") return "typescript";
+  if (l === "py" || l === "python") return "python";
+  if (l === "html") return "html";
+  if (l === "css") return "css";
+  if (l === "json") return "json";
+  if (l === "sql") return "sql";
+  if (l === "bash" || l === "sh") return "bash";
+  return l;
+};
 
 export default function SnippetDetails() {
   const { id } = useLocalSearchParams();
@@ -56,7 +74,18 @@ export default function SnippetDetails() {
 
       {/* Code Block */}
       <View style={styles.codeCard}>
-        <Text style={styles.code}>{snippet.code}</Text>
+        <SyntaxHighlighter
+          language={snippet.language ? getLanguage(snippet.language) : "text"}
+          style={atomOneDark}
+          customStyle={{ backgroundColor: "transparent", padding: 0 }}
+          PreTag={View}
+          CodeTag={Text}
+          fontSize={14}
+          highlighter="hljs"
+          fontFamily="monospace"
+        >
+          {snippet.code}
+        </SyntaxHighlighter>
       </View>
 
       {/* Buttons */}
