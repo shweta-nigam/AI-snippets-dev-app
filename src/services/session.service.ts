@@ -60,9 +60,10 @@ export const getSessionStats = async () => {
     let totalProject = 0;
 
     sessions.forEach((session) => {
-      if (session.type === "Study") {
+      const typeLower = (session.type || "").toLowerCase().trim();
+      if (typeLower === "study") {
         totalStudy += session.duration;
-      } else if (session.type === "Coding") {
+      } else if (typeLower === "coding") {
         totalCoding += session.duration;
       } else {
         totalProject += session.duration;

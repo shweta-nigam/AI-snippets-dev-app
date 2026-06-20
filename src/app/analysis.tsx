@@ -57,14 +57,17 @@ export default function AnalysisScreen() {
 
   // Formatter helpers
   const formatDuration = (totalSeconds: number) => {
-    if (totalSeconds === 0) return "0m";
+    if (totalSeconds === 0) return "0s";
+    if (totalSeconds < 60) return `${totalSeconds}s`;
     const hrs = Math.floor(totalSeconds / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
 
     if (hrs > 0) {
       return `${hrs}h ${mins}m`;
     }
-    return `${mins}m`;
+    if (secs === 0) return `${mins}m`;
+    return `${mins}m ${secs}s`;
   };
 
   const formatDurationLong = (totalSeconds: number) => {
