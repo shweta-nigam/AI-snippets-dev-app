@@ -121,8 +121,8 @@ export default function Index() {
         <Text style={styles.heading}>ChronoCode</Text>
 
         <Text style={styles.subHeading}>
-          Save and organize code snippets, track coding sessions, and gain
-          insights into your development productivity.
+          Your personal coding workspace for managing snippets, tracking focus
+          time, and measuring progress.
         </Text>
 
         <Link href="/create" asChild>
