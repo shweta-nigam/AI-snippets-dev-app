@@ -15,6 +15,7 @@ import {
   Layers,
   BarChart2,
   Calendar,
+  Briefcase,
 } from "lucide-react-native";
 import { getSessionStats, getSnippetLanguageStats, ISession } from "@/services/session.service";
 import { getAllSnippets } from "@/services/snippet.service";
@@ -25,6 +26,7 @@ export default function AnalysisScreen() {
   const [totalSnippets, setTotalSnippets] = useState<number>(0);
   const [totalCodingTime, setTotalCodingTime] = useState<number>(0);
   const [totalStudyTime, setTotalStudyTime] = useState<number>(0);
+  const [totalProjectTime, setTotalProjectTime] = useState<number>(0);
   const [languages, setLanguages] = useState<{ language: string; count: number }[]>([]);
   const [sessions, setSessions] = useState<ISession[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
@@ -42,6 +44,7 @@ export default function AnalysisScreen() {
     const stats = await getSessionStats();
     setTotalCodingTime(stats.totalCoding);
     setTotalStudyTime(stats.totalStudy);
+    setTotalProjectTime(stats.totalProject || 0);
     setSessions(stats.sessions);
     setVisibleCount(20);
   }
@@ -131,7 +134,15 @@ export default function AnalysisScreen() {
 
         <View style={styles.statCard}>
           <View style={[styles.statIconContainer, { backgroundColor: "rgba(46,204,113,0.15)" }]}>
-            <Layers size={20} color="#2ecc71" />
+            <Briefcase size={20} color="#2ecc71" />
+          </View>
+          <Text style={styles.statLabel}>Project Time</Text>
+          <Text style={styles.statValue}>{formatDuration(totalProjectTime)}</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={[styles.statIconContainer, { backgroundColor: "rgba(155,89,182,0.15)" }]}>
+            <Layers size={20} color="#9b59b6" />
           </View>
           <Text style={styles.statLabel}>Snippets</Text>
           <Text style={styles.statValue}>{totalSnippets}</Text>
@@ -207,18 +218,24 @@ export default function AnalysisScreen() {
                         backgroundColor:
                           item.type === "Coding"
                             ? "rgba(111,29,58,0.15)"
-                            : "rgba(52,152,219,0.15)",
+                            : item.type === "Study"
+                            ? "rgba(52,152,219,0.15)"
+                            : "rgba(46,204,113,0.15)",
                       },
                     ]}
                   >
                     {item.type === "Coding" ? (
                       <Terminal size={14} color="#D47A9A" />
-                    ) : (
+                    ) : item.type === "Study" ? (
                       <BookOpen size={14} color="#3498db" />
+                    ) : (
+                      <Briefcase size={14} color="#2ecc71" />
                     )}
                   </View>
                   <View>
-                    <Text style={styles.historyCardType}>{item.type} Session</Text>
+                    <Text style={styles.historyCardType}>
+                      {item.type === "Project" && item.title ? item.title : `${item.type} Session`}
+                    </Text>
                     <Text style={styles.historyCardTime}>{formatTimeAgo(item.createdAt)}</Text>
                   </View>
                 </View>
@@ -308,13 +325,15 @@ const styles = StyleSheet.create({
 
   statsGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     gap: 12,
     marginBottom: 30,
   },
 
   statCard: {
-    flex: 1,
+    width: "48%",
+    flexGrow: 1,
     backgroundColor: "#15151C",
     borderRadius: 20,
     padding: 16,

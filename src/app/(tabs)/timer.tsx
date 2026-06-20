@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StatusBar,
   FlatList,
+  TextInput,
+  ScrollView,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import {
@@ -16,8 +18,9 @@ import {
   BookOpen,
   Terminal,
   Clock,
+  Briefcase,
 } from "lucide-react-native";
-import { createSession, getAllSessions, ISession } from "@/services/session.service";
+import { createSession, updateSession, getAllSessions, ISession } from "@/services/session.service";
 import { CustomModal } from "@/components/CustomModal";
 
 const MERLOT = "#6F1D3A";
@@ -25,7 +28,9 @@ const MERLOT = "#6F1D3A";
 export default function TimerScreen() {
   const [seconds, setSeconds] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [sessionType, setSessionType] = useState<"Coding" | "Study">("Coding");
+  const [sessionType, setSessionType] = useState<"Coding" | "Study" | "Project">("Coding");
+  const [projectTitle, setProjectTitle] = useState("");
+  const [resumingSessionId, setResumingSessionId] = useState<number | null>(null);
   const [history, setHistory] = useState<ISession[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
 
@@ -112,6 +117,8 @@ export default function TimerScreen() {
       () => {
         setIsRunning(false);
         setSeconds(0);
+        setResumingSessionId(null);
+        setProjectTitle("");
       },
       true,
       "Reset"
@@ -129,15 +136,63 @@ export default function TimerScreen() {
       return;
     }
 
+    if (sessionType === "Project" && !projectTitle.trim()) {
+      showModal(
+        "Project Title Required",
+        "Please enter a title for your project session.",
+        "warning"
+      );
+      return;
+    }
+
     try {
-      await createSession(sessionType, seconds);
+      if (resumingSessionId !== null) {
+        await updateSession(resumingSessionId, seconds, projectTitle.trim());
+        showModal("Success", `Project session for "${projectTitle}" updated!`, "success");
+      } else {
+        await createSession(
+          sessionType,
+          seconds,
+          sessionType === "Project" ? projectTitle.trim() : undefined
+        );
+        showModal(
+          "Success",
+          sessionType === "Project"
+            ? `Project session "${projectTitle}" saved!`
+            : `${sessionType} session saved!`,
+          "success"
+        );
+      }
       setIsRunning(false);
       setSeconds(0);
-      showModal("Success", `${sessionType} session saved!`, "success");
+      setResumingSessionId(null);
+      setProjectTitle("");
       loadHistory();
     } catch (error) {
       console.error(error);
       showModal("Error", "Failed to save session.", "error");
+    }
+  };
+
+  const handleResumeSession = (item: ISession) => {
+    if (item.type === "Project") {
+      setIsRunning(false); // Stop any running timer first
+      setSessionType("Project");
+      setProjectTitle(item.title || "");
+      setSeconds(item.duration);
+      setResumingSessionId(item.id);
+      setIsRunning(true); // Auto-start the timer!
+      showModal(
+        "Timer Resumed",
+        `Resumed tracking for project: "${item.title}"`,
+        "success"
+      );
+    } else {
+      showModal(
+        "Session Info",
+        `${item.type} sessions cannot be resumed. Resuming is only available for Project tracking.`,
+        "info"
+      );
     }
   };
 
@@ -174,7 +229,7 @@ export default function TimerScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       {/* Hero Section */}
@@ -199,7 +254,10 @@ export default function TimerScreen() {
             sessionType === "Coding" && styles.modeButtonActive,
           ]}
           onPress={() => {
-            if (!isRunning || seconds === 0) setSessionType("Coding");
+            if (!isRunning || seconds === 0) {
+              setSessionType("Coding");
+              setResumingSessionId(null);
+            }
           }}
         >
           <Terminal size={18} color={sessionType === "Coding" ? "#FFF" : "#8B8B95"} />
@@ -220,7 +278,10 @@ export default function TimerScreen() {
             sessionType === "Study" && styles.modeButtonActive,
           ]}
           onPress={() => {
-            if (!isRunning || seconds === 0) setSessionType("Study");
+            if (!isRunning || seconds === 0) {
+              setSessionType("Study");
+              setResumingSessionId(null);
+            }
           }}
         >
           <BookOpen size={18} color={sessionType === "Study" ? "#FFF" : "#8B8B95"} />
@@ -233,7 +294,44 @@ export default function TimerScreen() {
             Study
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={[
+            styles.modeButton,
+            sessionType === "Project" && styles.modeButtonActive,
+          ]}
+          onPress={() => {
+            if (!isRunning || seconds === 0) {
+              setSessionType("Project");
+              setResumingSessionId(null);
+            }
+          }}
+        >
+          <Briefcase size={18} color={sessionType === "Project" ? "#FFF" : "#8B8B95"} />
+          <Text
+            style={[
+              styles.modeText,
+              sessionType === "Project" && styles.modeTextActive,
+            ]}
+          >
+            Project
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Project Title Input (Only in Project mode) */}
+      {sessionType === "Project" && (
+        <View style={styles.projectInputContainer}>
+          <TextInput
+            placeholder="Enter Project Name (e.g. Portfolio)"
+            placeholderTextColor="#8B8B95"
+            value={projectTitle}
+            onChangeText={setProjectTitle}
+            style={styles.projectInput}
+          />
+        </View>
+      )}
 
       {/* Timer Circle */}
       <View
@@ -242,7 +340,12 @@ export default function TimerScreen() {
           isRunning && styles.timerCircleRunning,
         ]}
       >
-        <Text style={styles.timerType}>{sessionType.toUpperCase()}</Text>
+        {sessionType === "Project" && resumingSessionId && (
+          <Text style={styles.resumingText}>Resuming</Text>
+        )}
+        <Text style={styles.timerType} numberOfLines={1} ellipsizeMode="tail">
+          {sessionType === "Project" && projectTitle ? projectTitle.toUpperCase() : sessionType.toUpperCase()}
+        </Text>
         <Text style={styles.timerText}>{formatTime(seconds)}</Text>
         <Text style={styles.timerSubText}>
           {isRunning ? "Focusing..." : "Paused"}
@@ -320,7 +423,11 @@ export default function TimerScreen() {
           ) : null
         }
         renderItem={({ item }) => (
-          <View style={styles.historyCard}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => handleResumeSession(item)}
+            style={styles.historyCard}
+          >
             <View style={styles.historyCardLeft}>
               <View
                 style={[
@@ -329,23 +436,29 @@ export default function TimerScreen() {
                     backgroundColor:
                       item.type === "Coding"
                         ? "rgba(111,29,58,0.15)"
-                        : "rgba(52,152,219,0.15)",
+                        : item.type === "Study"
+                        ? "rgba(52,152,219,0.15)"
+                        : "rgba(46,204,113,0.15)",
                   },
                 ]}
               >
                 {item.type === "Coding" ? (
                   <Terminal size={16} color="#D47A9A" />
-                ) : (
+                ) : item.type === "Study" ? (
                   <BookOpen size={16} color="#3498db" />
+                ) : (
+                  <Briefcase size={16} color="#2ecc71" />
                 )}
               </View>
               <View>
-                <Text style={styles.historyCardType}>{item.type} Session</Text>
+                <Text style={styles.historyCardType}>
+                  {item.type === "Project" && item.title ? item.title : `${item.type} Session`}
+                </Text>
                 <Text style={styles.historyCardTime}>{formatTimeAgo(item.createdAt)}</Text>
               </View>
             </View>
             <Text style={styles.historyCardDuration}>{formatDuration(item.duration)}</Text>
-          </View>
+          </TouchableOpacity>
         )}
       />
       <CustomModal
@@ -361,7 +474,7 @@ export default function TimerScreen() {
           if (modalOnConfirm) modalOnConfirm();
         }}
       />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -619,5 +732,31 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "700",
+  },
+
+  projectInputContainer: {
+    marginBottom: 20,
+    width: "100%",
+  },
+
+  projectInput: {
+    backgroundColor: "#15151C",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    color: "#FFFFFF",
+    fontSize: 15,
+  },
+
+  resumingText: {
+    color: "#2ecc71",
+    fontSize: 11,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 });

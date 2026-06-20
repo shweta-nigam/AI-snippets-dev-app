@@ -2,23 +2,40 @@ import { db } from "../db/db";
 
 export interface ISession {
   id: number;
-  type: string; // 'Study' or 'Coding'
+  type: string; // 'Study', 'Coding', or 'Project'
   duration: number; // in seconds
+  title?: string; // name of the project if type is 'Project'
   createdAt: string;
 }
 
-export const createSession = async (type: string, duration: number) => {
+export const createSession = async (type: string, duration: number, title?: string) => {
   try {
     await db.runAsync(
       `
-      INSERT INTO sessions (type, duration)
-      VALUES (?, ?)
+      INSERT INTO sessions (type, duration, title)
+      VALUES (?, ?, ?)
       `,
-      [type, duration]
+      [type, duration, title || null]
     );
-    console.log(`Session of type ${type} saved with duration ${duration}s`);
+    console.log(`Session of type ${type} saved with duration ${duration}s (Title: ${title})`);
   } catch (error) {
     console.error("Error saving session:", error);
+  }
+};
+
+export const updateSession = async (id: number, duration: number, title?: string) => {
+  try {
+    await db.runAsync(
+      `
+      UPDATE sessions
+      SET duration = ?, title = ?
+      WHERE id = ?
+      `,
+      [duration, title || null, id]
+    );
+    console.log(`Session ${id} updated with duration ${duration}s and title ${title}`);
+  } catch (error) {
+    console.error("Error updating session:", error);
   }
 };
 
@@ -40,18 +57,22 @@ export const getSessionStats = async () => {
     const sessions = await getAllSessions();
     let totalStudy = 0;
     let totalCoding = 0;
+    let totalProject = 0;
 
     sessions.forEach((session) => {
       if (session.type === "Study") {
         totalStudy += session.duration;
       } else if (session.type === "Coding") {
         totalCoding += session.duration;
+      } else {
+        totalProject += session.duration;
       }
     });
 
     return {
       totalStudy,
       totalCoding,
+      totalProject,
       sessionCount: sessions.length,
       sessions,
     };
@@ -60,6 +81,7 @@ export const getSessionStats = async () => {
     return {
       totalStudy: 0,
       totalCoding: 0,
+      totalProject: 0,
       sessionCount: 0,
       sessions: [],
     };
