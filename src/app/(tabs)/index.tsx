@@ -10,7 +10,10 @@ import {
 import { Link, useFocusEffect } from "expo-router";
 import React, { useState } from "react";
 import { Star, BarChart2, FileUp, FileDown } from "lucide-react-native";
-import { importSnippetFromFile, exportSnippetsToFile } from "@/services/file.service";
+import {
+  importSnippetFromFile,
+  exportSnippetsToFile,
+} from "@/services/file.service";
 import { getUserProfile, IUserProfile } from "@/services/profile.service";
 import { CustomModal } from "@/components/CustomModal";
 
@@ -21,12 +24,14 @@ export default function Index() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
-  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [modalType, setModalType] = useState<
+    "success" | "error" | "warning" | "info"
+  >("info");
 
   const showModal = (
     title: string,
     message: string,
-    type: 'success' | 'error' | 'warning' | 'info'
+    type: "success" | "error" | "warning" | "info",
   ) => {
     setModalTitle(title);
     setModalMessage(message);
@@ -42,7 +47,7 @@ export default function Index() {
   useFocusEffect(
     React.useCallback(() => {
       loadProfile();
-    }, [])
+    }, []),
   );
 
   const handleImport = async () => {
@@ -55,21 +60,32 @@ export default function Index() {
       }
     } catch (error) {
       console.error(error);
-      showModal("Error", "An unexpected error occurred during file import.", "error");
+      showModal(
+        "Error",
+        "An unexpected error occurred during file import.",
+        "error",
+      );
     }
   };
 
   const handleExport = async () => {
     try {
       const res = await exportSnippetsToFile();
-      if (!res.success && res.message !== "No snippets found in database to export") {
+      if (
+        !res.success &&
+        res.message !== "No snippets found in database to export"
+      ) {
         showModal("Export Info", res.message, "info");
       } else if (!res.success) {
         showModal("Export Empty", res.message, "warning");
       }
     } catch (error) {
       console.error(error);
-      showModal("Error", "An unexpected error occurred during file export.", "error");
+      showModal(
+        "Error",
+        "An unexpected error occurred during file export.",
+        "error",
+      );
     }
   };
 
@@ -89,18 +105,24 @@ export default function Index() {
           </View>
           {profile && (
             <Link href="/profile" asChild>
-              <TouchableOpacity activeOpacity={0.8} style={styles.avatarWrapper}>
-                <Image source={{ uri: profile.avatarUrl }} style={styles.avatarImage} />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.avatarWrapper}
+              >
+                <Image
+                  source={{ uri: profile.avatarUrl }}
+                  style={styles.avatarImage}
+                />
               </TouchableOpacity>
             </Link>
           )}
         </View>
 
-        <Text style={styles.heading}>Dev Snippets AI</Text>
+        <Text style={styles.heading}>ChronoCode</Text>
 
         <Text style={styles.subHeading}>
-          Save, organize, and access your favorite code snippets with a modern
-          developer experience.
+          Save and organize code snippets, track coding sessions, and gain
+          insights into your development productivity.
         </Text>
 
         <Link href="/create" asChild>
@@ -118,7 +140,12 @@ export default function Index() {
         <Link href="/favorite" asChild>
           <TouchableOpacity activeOpacity={0.85} style={styles.gridCard}>
             <View style={styles.cardGlow} />
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(255,215,0,0.12)" }]}>
+            <View
+              style={[
+                styles.iconContainer,
+                { backgroundColor: "rgba(255,215,0,0.12)" },
+              ]}
+            >
               <Star color="#FFD700" size={22} fill="#FFD700" />
             </View>
             <View>
@@ -132,7 +159,12 @@ export default function Index() {
         <Link href="/analysis" asChild>
           <TouchableOpacity activeOpacity={0.85} style={styles.gridCard}>
             <View style={styles.cardGlowBlue} />
-            <View style={[styles.iconContainer, { backgroundColor: "rgba(52,152,219,0.12)" }]}>
+            <View
+              style={[
+                styles.iconContainer,
+                { backgroundColor: "rgba(52,152,219,0.12)" },
+              ]}
+            >
               <BarChart2 color="#3498db" size={22} />
             </View>
             <View>
@@ -154,7 +186,12 @@ export default function Index() {
           onPress={handleImport}
         >
           <View style={styles.cardGlowGreen} />
-          <View style={[styles.iconContainer, { backgroundColor: "rgba(46,204,113,0.12)" }]}>
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: "rgba(46,204,113,0.12)" },
+            ]}
+          >
             <FileUp color="#2ecc71" size={22} />
           </View>
           <View>
@@ -170,7 +207,12 @@ export default function Index() {
           onPress={handleExport}
         >
           <View style={styles.cardGlowOrange} />
-          <View style={[styles.iconContainer, { backgroundColor: "rgba(230,126,34,0.12)" }]}>
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: "rgba(230,126,34,0.12)" },
+            ]}
+          >
             <FileDown color="#e67e22" size={22} />
           </View>
           <View>

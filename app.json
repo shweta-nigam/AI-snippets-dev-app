@@ -1,16 +1,17 @@
 {
   "expo": {
-    "name": "014-DevSnippets-AI-app",
-    "slug": "014-DevSnippets-AI-app",
+    "name": "ChronoCode",
+    "slug": "chronocode",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "014devsnippetsaiapp",
+    "scheme": "chronocode",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png"
     },
     "android": {
+       "package": "com.shkai.chronocode",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -41,6 +42,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ff8c3643-bbf2-4964-868a-49be7b61c952"
+      }
     }
   }
 }
