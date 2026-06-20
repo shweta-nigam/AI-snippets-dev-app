@@ -14,8 +14,26 @@ import { Heart } from "lucide-react-native";
 
 import { getAllSnippets, toggleFavorite } from "@/services/snippet.service";
 import { ISnippet } from "@/types/snippet";
+import SyntaxHighlighter from "react-native-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const MERLOT = "#6F1D3A";
+
+const getLanguage = (lang: string) => {
+  if (!lang) return "text";
+  const l = lang.toLowerCase().trim();
+  if (l === "c++" || l === "cpp") return "cpp";
+  if (l === "c#" || l === "csharp") return "csharp";
+  if (l === "js" || l === "javascript") return "javascript";
+  if (l === "ts" || l === "typescript") return "typescript";
+  if (l === "py" || l === "python") return "python";
+  if (l === "html") return "html";
+  if (l === "css") return "css";
+  if (l === "json") return "json";
+  if (l === "sql") return "sql";
+  if (l === "bash" || l === "sh") return "bash";
+  return l;
+};
 
 export default function SnippetsScreen() {
   const [snippets, setSnippets] = useState<ISnippet[]>([]);
@@ -139,9 +157,18 @@ export default function SnippetsScreen() {
 
               {/* Code Preview */}
               <View style={styles.codePreviewCard}>
-                <Text style={styles.codePreviewText}>
+                <SyntaxHighlighter
+                  language={item.language ? getLanguage(item.language) : "text"}
+                  style={atomOneDark}
+                  customStyle={{ backgroundColor: "transparent", padding: 0 }}
+                  PreTag={View}
+                  CodeTag={Text}
+                  fontSize={11}
+                  highlighter="hljs"
+                  fontFamily="monospace"
+                >
                   {getPreviewCode(item.code)}
-                </Text>
+                </SyntaxHighlighter>
               </View>
 
               <View style={styles.metaRow}>
