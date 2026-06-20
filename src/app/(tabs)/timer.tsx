@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StatusBar,
   FlatList,
-  Alert,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import {
@@ -19,6 +18,7 @@ import {
   Clock,
 } from "lucide-react-native";
 import { createSession, getAllSessions, ISession } from "@/services/session.service";
+import { CustomModal } from "@/components/CustomModal";
 
 const MERLOT = "#6F1D3A";
 
@@ -30,6 +30,32 @@ export default function TimerScreen() {
   const [visibleCount, setVisibleCount] = useState(20);
 
   const intervalRef = useRef<any>(null);
+
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => void) | undefined>(undefined);
+  const [modalShowCancel, setModalShowCancel] = useState(false);
+  const [modalConfirmLabel, setModalConfirmLabel] = useState("Got It");
+
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info',
+    onConfirm?: () => void,
+    showCancel = false,
+    confirmLabel = "Got It"
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setModalOnConfirm(() => onConfirm);
+    setModalShowCancel(showCancel);
+    setModalConfirmLabel(confirmLabel);
+    setModalVisible(true);
+  };
 
   // Load history from DB
   async function loadHistory() {
@@ -79,29 +105,26 @@ export default function TimerScreen() {
 
   // Reset timer
   const handleReset = () => {
-    Alert.alert(
+    showModal(
       "Reset Timer",
       "Are you sure you want to reset the current timer? Your progress will be lost.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Reset",
-          style: "destructive",
-          onPress: () => {
-            setIsRunning(false);
-            setSeconds(0);
-          },
-        },
-      ]
+      "warning",
+      () => {
+        setIsRunning(false);
+        setSeconds(0);
+      },
+      true,
+      "Reset"
     );
   };
 
   // Save session
   const handleSave = async () => {
     if (seconds < 5) {
-      Alert.alert(
+      showModal(
         "Too Short",
-        "Sessions must be at least 5 seconds long to be saved."
+        "Sessions must be at least 5 seconds long to be saved.",
+        "warning"
       );
       return;
     }
@@ -110,11 +133,11 @@ export default function TimerScreen() {
       await createSession(sessionType, seconds);
       setIsRunning(false);
       setSeconds(0);
-      Alert.alert("Success", `${sessionType} session saved!`);
+      showModal("Success", `${sessionType} session saved!`, "success");
       loadHistory();
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Failed to save session.");
+      showModal("Error", "Failed to save session.", "error");
     }
   };
 
@@ -324,6 +347,19 @@ export default function TimerScreen() {
             <Text style={styles.historyCardDuration}>{formatDuration(item.duration)}</Text>
           </View>
         )}
+      />
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        confirmLabel={modalConfirmLabel}
+        showCancel={modalShowCancel}
+        onClose={() => setModalVisible(false)}
+        onConfirm={() => {
+          setModalVisible(false);
+          if (modalOnConfirm) modalOnConfirm();
+        }}
       />
     </View>
   );

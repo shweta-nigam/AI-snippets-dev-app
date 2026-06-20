@@ -4,7 +4,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Alert,
   ScrollView,
   Image,
 } from "react-native";
@@ -13,9 +12,27 @@ import React, { useState } from "react";
 import { Star, BarChart2, FileUp, FileDown } from "lucide-react-native";
 import { importSnippetFromFile, exportSnippetsToFile } from "@/services/file.service";
 import { getUserProfile, IUserProfile } from "@/services/profile.service";
+import { CustomModal } from "@/components/CustomModal";
 
 export default function Index() {
   const [profile, setProfile] = useState<IUserProfile | null>(null);
+
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info'
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setModalVisible(true);
+  };
 
   async function loadProfile() {
     const data = await getUserProfile();
@@ -32,13 +49,13 @@ export default function Index() {
     try {
       const res = await importSnippetFromFile();
       if (res.success) {
-        Alert.alert("Import Successful", res.message);
+        showModal("Import Successful", res.message, "success");
       } else if (res.message !== "Import cancelled by user") {
-        Alert.alert("Import Info", res.message);
+        showModal("Import Info", res.message, "info");
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "An unexpected error occurred during file import.");
+      showModal("Error", "An unexpected error occurred during file import.", "error");
     }
   };
 
@@ -46,13 +63,13 @@ export default function Index() {
     try {
       const res = await exportSnippetsToFile();
       if (!res.success && res.message !== "No snippets found in database to export") {
-        Alert.alert("Export Info", res.message);
+        showModal("Export Info", res.message, "info");
       } else if (!res.success) {
-        Alert.alert("Export Empty", res.message);
+        showModal("Export Empty", res.message, "warning");
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "An unexpected error occurred during file export.");
+      showModal("Error", "An unexpected error occurred during file export.", "error");
     }
   };
 
@@ -162,6 +179,13 @@ export default function Index() {
           </View>
         </TouchableOpacity>
       </View>
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        onClose={() => setModalVisible(false)}
+      />
     </ScrollView>
   );
 }

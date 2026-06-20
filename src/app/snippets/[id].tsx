@@ -12,9 +12,10 @@ import { useLocalSearchParams, router } from "expo-router";
 
 import { ISnippet } from "@/types/snippet";
 
-import { getSnippetById } from "@/services/snippet.service";
+import { getSnippetById, deleteSnippet } from "@/services/snippet.service";
 import SyntaxHighlighter from "react-native-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { CustomModal } from "@/components/CustomModal";
 
 const MERLOT = "#6F1D3A";
 
@@ -38,6 +39,8 @@ export default function SnippetDetails() {
   const { id } = useLocalSearchParams();
 
   const [snippet, setSnippet] = useState<ISnippet | null>(null);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [deleteSuccessVisible, setDeleteSuccessVisible] = useState(false);
 
   async function loadSnippet() {
     const data = await getSnippetById(id as string);
@@ -49,6 +52,14 @@ export default function SnippetDetails() {
     loadSnippet();
   }, []);
 
+  async function handleDelete() {
+    if (snippet) {
+      setDeleteConfirmVisible(false);
+      await deleteSnippet(snippet.id);
+      setDeleteSuccessVisible(true);
+    }
+  }
+
   if (!snippet) {
     return (
       <View style={styles.loadingContainer}>
@@ -58,58 +69,93 @@ export default function SnippetDetails() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar barStyle="light-content" />
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{snippet.title}</Text>
+    <>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <StatusBar barStyle="light-content" />
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>{snippet.title}</Text>
 
-        <Text style={styles.language}>{snippet.language}</Text>
-      </View>
+          <Text style={styles.language}>{snippet.language}</Text>
+        </View>
 
-      {/* Tags */}
-      <View style={styles.tagsContainer}>
-        <Text style={styles.tags}>{snippet.tags}</Text>
-      </View>
+        {/* Tags */}
+        <View style={styles.tagsContainer}>
+          <Text style={styles.tags}>{snippet.tags}</Text>
+        </View>
 
-      {/* Code Block */}
-      <View style={styles.codeCard}>
-        <SyntaxHighlighter
-          language={snippet.language ? getLanguage(snippet.language) : "text"}
-          style={atomOneDark}
-          customStyle={{ backgroundColor: "transparent", padding: 0 }}
-          PreTag={View}
-          CodeTag={Text}
-          fontSize={14}
-          highlighter="hljs"
-          fontFamily="monospace"
-        >
-          {snippet.code}
-        </SyntaxHighlighter>
-      </View>
+        {/* Code Block */}
+        <View style={styles.codeCard}>
+          <SyntaxHighlighter
+            language={snippet.language ? getLanguage(snippet.language) : "text"}
+            style={atomOneDark}
+            customStyle={{ backgroundColor: "transparent", padding: 0 }}
+            PreTag={View}
+            CodeTag={Text}
+            fontSize={14}
+            highlighter="hljs"
+            fontFamily="monospace"
+          >
+            {snippet.code}
+          </SyntaxHighlighter>
+        </View>
 
-      {/* Buttons */}
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.editButton}
-          activeOpacity={0.85}
-          onPress={() =>
-            router.push({
-              pathname: "/edit/[id]",
-              params: {
-                id: snippet.id.toString(),
-              },
-            })
-          }
-        >
-          <Text style={styles.buttonText}>Edit</Text>
-        </TouchableOpacity>
+        {/* Buttons */}
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.editButton}
+            activeOpacity={0.85}
+            onPress={() =>
+              router.push({
+                pathname: "/edit/[id]",
+                params: {
+                  id: snippet.id.toString(),
+                },
+              })
+            }
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteButton} activeOpacity={0.85}>
-          <Text style={styles.buttonText}>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            activeOpacity={0.85}
+            onPress={() => setDeleteConfirmVisible(true)}
+          >
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {/* Delete Confirmation Modal */}
+      <CustomModal
+        visible={deleteConfirmVisible}
+        title="Delete Snippet"
+        message="Are you sure you want to delete this snippet? This action cannot be undone."
+        type="warning"
+        showCancel={true}
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        onClose={() => setDeleteConfirmVisible(false)}
+      />
+
+      {/* Delete Success Modal */}
+      <CustomModal
+        visible={deleteSuccessVisible}
+        title="Snippet Deleted"
+        message="Your snippet has been deleted successfully."
+        type="success"
+        confirmLabel="Awesome"
+        onConfirm={() => {
+          setDeleteSuccessVisible(false);
+          router.replace("/(tabs)/snippets");
+        }}
+        onClose={() => {
+          setDeleteSuccessVisible(false);
+          router.replace("/(tabs)/snippets");
+        }}
+      />
+    </>
   );
 }
 

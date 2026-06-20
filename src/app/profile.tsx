@@ -7,7 +7,6 @@ import {
   StatusBar,
   TextInput,
   Image,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +14,7 @@ import {
 import { router } from "expo-router";
 import { ChevronLeft, User, Briefcase, Shuffle, Save } from "lucide-react-native";
 import { getUserProfile, updateUserProfile } from "@/services/profile.service";
+import { CustomModal } from "@/components/CustomModal";
 
 const MERLOT = "#6F1D3A";
 
@@ -22,6 +22,26 @@ export default function ProfileScreen() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("https://api.dicebear.com/7.x/adventurer/png?seed=initial");
+
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => void) | undefined>(undefined);
+
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info',
+    onConfirm?: () => void
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setModalOnConfirm(() => onConfirm);
+    setModalVisible(true);
+  };
 
   async function loadProfile() {
     const profile = await getUserProfile();
@@ -45,25 +65,26 @@ export default function ProfileScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert("Error", "Name cannot be empty.");
+      showModal("Error", "Name cannot be empty.", "error");
       return;
     }
     if (!role.trim()) {
-      Alert.alert("Error", "Role cannot be empty.");
+      showModal("Error", "Role cannot be empty.", "error");
       return;
     }
 
     try {
       const success = await updateUserProfile(name.trim(), role.trim(), avatarUrl);
       if (success) {
-        Alert.alert("Success", "Profile updated successfully!");
-        router.back();
+        showModal("Success", "Profile updated successfully!", "success", () => {
+          router.back();
+        });
       } else {
-        Alert.alert("Error", "Failed to update profile.");
+        showModal("Error", "Failed to update profile.", "error");
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "An unexpected error occurred.");
+      showModal("Error", "An unexpected error occurred.", "error");
     }
   };
 
@@ -158,6 +179,18 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        onClose={() => setModalVisible(false)}
+        onConfirm={() => {
+          setModalVisible(false);
+          if (modalOnConfirm) modalOnConfirm();
+        }}
+      />
     </KeyboardAvoidingView>
   );
 }

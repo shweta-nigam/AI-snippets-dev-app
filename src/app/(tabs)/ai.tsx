@@ -10,11 +10,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Alert,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { explainCode, saveApiKey, getApiKey } from "@/services/ai.service";
 import { Key, Eye, EyeOff, Save, Sparkles, AlertTriangle } from "lucide-react-native";
+import { CustomModal } from "@/components/CustomModal";
 
 const MERLOT = "#6F1D3A";
 
@@ -28,6 +28,26 @@ const AiScreen = () => {
   const [isKeyVisible, setIsKeyVisible] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+
+  // Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState<'success' | 'error' | 'warning' | 'info'>('info');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => void) | undefined>(undefined);
+
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info',
+    onConfirm?: () => void
+  ) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalType(type);
+    setModalOnConfirm(() => onConfirm);
+    setModalVisible(true);
+  };
 
   // Load API Key from SQLite
   async function loadApiKey() {
@@ -44,27 +64,28 @@ const AiScreen = () => {
 
   const handleSaveKey = async () => {
     if (!apiKey.trim()) {
-      Alert.alert("Required", "Please enter a valid API key.");
+      showModal("Required", "Please enter a valid API key.", "warning");
       return;
     }
     await saveApiKey(apiKey.trim());
     setIsConfigured(true);
     setShowConfig(false);
-    Alert.alert("Success", "Gemini API Key saved successfully.");
+    showModal("Success", "Gemini API Key saved successfully.", "success");
   };
 
   const handleExplain = async () => {
     if (!apiKey.trim()) {
-      Alert.alert(
+      showModal(
         "API Key Required",
         "Please provide your Gemini API key at the top configuration panel to get explanations.",
-        [{ text: "Configure", onPress: () => setShowConfig(true) }]
+        "warning",
+        () => setShowConfig(true)
       );
       return;
     }
 
     if (!code.trim()) {
-      Alert.alert("Empty Code", "Please enter some code to explain.");
+      showModal("Empty Code", "Please enter some code to explain.", "warning");
       return;
     }
 
@@ -201,6 +222,18 @@ const AiScreen = () => {
           </View>
         ) : null}
       </ScrollView>
+
+      <CustomModal
+        visible={modalVisible}
+        title={modalTitle}
+        message={modalMessage}
+        type={modalType}
+        onClose={() => setModalVisible(false)}
+        onConfirm={() => {
+          setModalVisible(false);
+          if (modalOnConfirm) modalOnConfirm();
+        }}
+      />
     </KeyboardAvoidingView>
   );
 };
