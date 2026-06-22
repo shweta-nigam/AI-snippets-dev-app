@@ -11,7 +11,7 @@
       "icon": "./assets/images/icon.png"
     },
     "android": {
-       "package": "com.shkai.chronocode",
+      "package": "com.shkai.chronocode",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -46,7 +46,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ff8c3643-bbf2-4964-868a-49be7b61c952"
+        "projectId": "8add55d4-e8d2-4465-ac34-f1a5265b36ce"
       }
     }
   }
