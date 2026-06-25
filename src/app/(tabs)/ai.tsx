@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
-import { explainCode, saveApiKey, getApiKey } from "@/services/ai.service";
+import { explainCode, saveApiKey, getApiKey, validateApiKey } from "@/services/ai.service";
 import { Key, Eye, EyeOff, Save, Sparkles, AlertTriangle } from "lucide-react-native";
 import { CustomModal } from "@/components/CustomModal";
 
@@ -28,6 +28,7 @@ const AiScreen = () => {
   const [isKeyVisible, setIsKeyVisible] = useState(false);
   const [isConfigured, setIsConfigured] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
   // Modal State
   const [modalVisible, setModalVisible] = useState(false);
@@ -63,14 +64,33 @@ const AiScreen = () => {
   );
 
   const handleSaveKey = async () => {
-    if (!apiKey.trim()) {
+    const trimmedKey = apiKey.trim();
+    if (!trimmedKey) {
       showModal("Required", "Please enter a valid API key.", "warning");
       return;
     }
-    await saveApiKey(apiKey.trim());
-    setIsConfigured(true);
-    setShowConfig(false);
-    showModal("Success", "Gemini API Key saved successfully.", "success");
+
+    try {
+      setIsValidating(true);
+      const res = await validateApiKey(trimmedKey);
+      if (res.valid) {
+        await saveApiKey(trimmedKey);
+        setIsConfigured(true);
+        setShowConfig(false);
+        showModal("Success", "Gemini API Key validated and saved successfully.", "success");
+      } else {
+        showModal(
+          "Invalid API Key",
+          res.error || "The API key could not be validated. Please check the key and try again.",
+          "error"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      showModal("Error", "An unexpected error occurred during API key validation.", "error");
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   const handleExplain = async () => {
@@ -164,12 +184,19 @@ const AiScreen = () => {
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                style={styles.saveBtn}
+                style={[styles.saveBtn, isValidating && styles.buttonDisabled]}
                 onPress={handleSaveKey}
                 activeOpacity={0.8}
+                disabled={isValidating}
               >
-                <Save size={16} color="#FFF" />
-                <Text style={styles.saveBtnText}>Save API Key</Text>
+                {isValidating ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <Save size={16} color="#FFF" />
+                    <Text style={styles.saveBtnText}>Save API Key</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
           )}

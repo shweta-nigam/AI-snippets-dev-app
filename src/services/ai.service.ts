@@ -24,6 +24,28 @@ export const getApiKey = async (): Promise<string> => {
   }
 };
 
+export const validateApiKey = async (key: string): Promise<{ valid: boolean; error?: string }> => {
+  if (!key || key.trim().length < 20) {
+    return { valid: false, error: "API key is too short to be valid." };
+  }
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${key.trim()}`
+    );
+    if (response.status === 200) {
+      return { valid: true };
+    } else {
+      const data = await response.json().catch(() => ({}));
+      const errMsg = data?.error?.message || "Invalid API Key. Please verify the key and try again.";
+      return { valid: false, error: errMsg };
+    }
+  } catch (error) {
+    console.error("Error validating API key:", error);
+    return { valid: false, error: "Network error. Please check your internet connection." };
+  }
+};
+
+
 export const explainCode = async (code: string, apiKey: string) => {
   try {
     const response = await fetch(
