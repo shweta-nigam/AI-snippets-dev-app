@@ -76,11 +76,13 @@ export const updateSnippet = async (
 
 export const deleteSnippet = async (id: number) => {
   try {
-    await db.runAsync(`
-            DELETE FROM snippets
+    await db.runAsync(
+      `
+      DELETE FROM snippets
       WHERE id = ?
-            `),
+      `,
       [id]
+    );
   } catch (error) {
     console.error(error);
   }

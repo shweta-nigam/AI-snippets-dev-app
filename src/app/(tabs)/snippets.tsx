@@ -116,6 +116,13 @@ export default function SnippetsScreen() {
             <Text style={styles.emptyText}>
               Start saving snippets to build your library.
             </Text>
+            <TouchableOpacity
+              style={styles.emptyCreateButton}
+              activeOpacity={0.85}
+              onPress={() => router.push("/create")}
+            >
+              <Text style={styles.emptyCreateButtonText}>+ Create Snippet</Text>
+            </TouchableOpacity>
           </View>
         }
         ListFooterComponent={
@@ -322,6 +329,30 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
     paddingHorizontal: 20,
+  },
+
+  emptyCreateButton: {
+    backgroundColor: MERLOT,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    alignItems: "center",
+    marginTop: 20,
+    shadowColor: MERLOT,
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+
+  emptyCreateButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+    letterSpacing: 0.3,
   },
 
   loadMoreButton: {
