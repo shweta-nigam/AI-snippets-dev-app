@@ -19,10 +19,12 @@ import {
 } from "lucide-react-native";
 import { getSessionStats, getSnippetLanguageStats, ISession } from "@/services/session.service";
 import { getAllSnippets } from "@/services/snippet.service";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function AnalysisScreen() {
+  const { colors } = useTheme();
   const [totalSnippets, setTotalSnippets] = useState<number>(0);
   const [totalCodingTime, setTotalCodingTime] = useState<number>(0);
   const [totalStudyTime, setTotalStudyTime] = useState<number>(0);
@@ -92,88 +94,88 @@ export default function AnalysisScreen() {
   const totalLanguageSnippets = languages.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-      <StatusBar barStyle="light-content" />
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <StatusBar barStyle={colors.statusBar} />
 
       {/* Header */}
       <View style={styles.hero}>
         <View style={styles.headerRow}>
           <TouchableOpacity
-            style={styles.backButton}
+            style={[styles.backButton, { backgroundColor: colors.isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderColor: colors.border }]}
             onPress={() => router.back()}
             activeOpacity={0.7}
           >
-            <ChevronLeft size={24} color="#fff" />
+            <ChevronLeft size={24} color={colors.text} />
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>ANALYTICS</Text>
+          <View style={[styles.badge, { backgroundColor: colors.glow, borderColor: colors.border }]}>
+            <Text style={[styles.badgeText, { color: colors.text }]}>ANALYTICS</Text>
           </View>
         </View>
 
-        <Text style={styles.heading}>Performance</Text>
+        <Text style={[styles.heading, { color: colors.text }]}>Performance</Text>
 
-        <Text style={styles.subHeading}>
+        <Text style={[styles.subHeading, { color: colors.subText }]}>
           Gain valuable insights on your code repository and timed learning sessions.
         </Text>
       </View>
 
       {/* Metric Cards Grid */}
       <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <View style={[styles.statIconContainer, { backgroundColor: "rgba(111,29,58,0.15)" }]}>
-            <Terminal size={20} color="#D47A9A" />
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[styles.statIconContainer, { backgroundColor: colors.glow }]}>
+            <Terminal size={20} color={colors.primary} />
           </View>
-          <Text style={styles.statLabel}>Coding Time</Text>
-          <Text style={styles.statValue}>{formatDuration(totalCodingTime)}</Text>
+          <Text style={[styles.statLabel, { color: colors.subText }]}>Coding Time</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{formatDuration(totalCodingTime)}</Text>
         </View>
 
-        <View style={styles.statCard}>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={[styles.statIconContainer, { backgroundColor: "rgba(52,152,219,0.15)" }]}>
             <BookOpen size={20} color="#3498db" />
           </View>
-          <Text style={styles.statLabel}>Study Time</Text>
-          <Text style={styles.statValue}>{formatDuration(totalStudyTime)}</Text>
+          <Text style={[styles.statLabel, { color: colors.subText }]}>Study Time</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{formatDuration(totalStudyTime)}</Text>
         </View>
 
-        <View style={styles.statCard}>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={[styles.statIconContainer, { backgroundColor: "rgba(46,204,113,0.15)" }]}>
             <Briefcase size={20} color="#2ecc71" />
           </View>
-          <Text style={styles.statLabel}>Project Time</Text>
-          <Text style={styles.statValue}>{formatDuration(totalProjectTime)}</Text>
+          <Text style={[styles.statLabel, { color: colors.subText }]}>Project Time</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{formatDuration(totalProjectTime)}</Text>
         </View>
 
-        <View style={styles.statCard}>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={[styles.statIconContainer, { backgroundColor: "rgba(155,89,182,0.15)" }]}>
             <Layers size={20} color="#9b59b6" />
           </View>
-          <Text style={styles.statLabel}>Snippets</Text>
-          <Text style={styles.statValue}>{totalSnippets}</Text>
+          <Text style={[styles.statLabel, { color: colors.subText }]}>Snippets</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{totalSnippets}</Text>
         </View>
       </View>
 
       {/* Language Breakdown */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <BarChart2 size={18} color="#D47A9A" />
-          <Text style={styles.sectionTitle}>Language Breakdown</Text>
+          <BarChart2 size={18} color={colors.primary} />
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Language Breakdown</Text>
         </View>
 
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {languages.length === 0 ? (
-            <Text style={styles.emptyText}>No snippets saved yet. Add snippets to see language breakdown.</Text>
+            <Text style={[styles.emptyText, { color: colors.subText }]}>No snippets saved yet. Add snippets to see language breakdown.</Text>
           ) : (
             languages.map((item, index) => {
               const pct = totalLanguageSnippets > 0 ? (item.count / totalLanguageSnippets) * 100 : 0;
               return (
                 <View key={index} style={styles.langRow}>
                   <View style={styles.langHeader}>
-                    <Text style={styles.langName}>{item.language}</Text>
-                    <Text style={styles.langCount}>
+                    <Text style={[styles.langName, { color: colors.text }]}>{item.language}</Text>
+                    <Text style={[styles.langCount, { color: colors.subText }]}>
                       {item.count} {item.count === 1 ? "snippet" : "snippets"} ({pct.toFixed(0)}%)
                     </Text>
                   </View>
-                  <View style={styles.progressBarBg}>
+                  <View style={[styles.progressBarBg, { backgroundColor: colors.isDark ? "#1C1C24" : "#E5E7EB" }]}>
                     <View
                       style={[
                         styles.progressBarFill,
@@ -181,7 +183,7 @@ export default function AnalysisScreen() {
                           width: `${pct}%`,
                           backgroundColor:
                             index === 0
-                              ? "#D47A9A"
+                              ? colors.primary
                               : index === 1
                               ? "#3498db"
                               : index === 2
@@ -201,18 +203,18 @@ export default function AnalysisScreen() {
       {/* Focus History Logs */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Calendar size={18} color="#D47A9A" />
-          <Text style={styles.sectionTitle}>Session History</Text>
+          <Calendar size={18} color={colors.primary} />
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Session History</Text>
         </View>
 
         {sessions.length === 0 ? (
-          <View style={styles.sectionCard}>
-            <Text style={styles.emptyText}>No focus sessions logged yet. Head to the Timer tab to start tracking!</Text>
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.emptyText, { color: colors.subText }]}>No focus sessions logged yet. Head to the Timer tab to start tracking!</Text>
           </View>
         ) : (
           <>
             {sessions.slice(0, visibleCount).map((item) => (
-              <View key={item.id} style={styles.historyCard}>
+              <View key={item.id} style={[styles.historyCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.historyCardLeft}>
                   <View
                     style={[
@@ -220,7 +222,7 @@ export default function AnalysisScreen() {
                       {
                         backgroundColor:
                           item.type === "Coding"
-                            ? "rgba(111,29,58,0.15)"
+                            ? colors.glow
                             : item.type === "Study"
                             ? "rgba(52,152,219,0.15)"
                             : "rgba(46,204,113,0.15)",
@@ -228,7 +230,7 @@ export default function AnalysisScreen() {
                     ]}
                   >
                     {item.type === "Coding" ? (
-                      <Terminal size={14} color="#D47A9A" />
+                      <Terminal size={14} color={colors.primary} />
                     ) : item.type === "Study" ? (
                       <BookOpen size={14} color="#3498db" />
                     ) : (
@@ -236,23 +238,23 @@ export default function AnalysisScreen() {
                     )}
                   </View>
                   <View>
-                    <Text style={styles.historyCardType}>
+                    <Text style={[styles.historyCardType, { color: colors.text }]}>
                       {item.type === "Project" && item.title ? item.title : `${item.type} Session`}
                     </Text>
-                    <Text style={styles.historyCardTime}>{formatTimeAgo(item.createdAt)}</Text>
+                    <Text style={[styles.historyCardTime, { color: colors.subText }]}>{formatTimeAgo(item.createdAt)}</Text>
                   </View>
                 </View>
-                <Text style={styles.historyCardDuration}>{formatDurationLong(item.duration)}</Text>
+                <Text style={[styles.historyCardDuration, { color: colors.text }]}>{formatDurationLong(item.duration)}</Text>
               </View>
             ))}
 
             {sessions.length > visibleCount && (
               <TouchableOpacity
-                style={styles.loadMoreButton}
+                style={[styles.loadMoreButton, { backgroundColor: colors.card, borderColor: colors.border }]}
                 onPress={() => setVisibleCount((prev) => prev + 20)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.loadMoreText}>Load More</Text>
+                <Text style={[styles.loadMoreText, { color: colors.text }]}>Load More</Text>
               </TouchableOpacity>
             )}
           </>

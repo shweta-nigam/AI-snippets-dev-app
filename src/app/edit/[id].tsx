@@ -15,10 +15,12 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 
 import { getSnippetById, updateSnippet } from "@/services/snippet.service";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function EditSnippet() {
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams();
 
   const [title, setTitle] = useState("");
@@ -50,8 +52,14 @@ export default function EditSnippet() {
   }
 
   async function handleUpdate() {
-    if (!title || !code || !language) {
-      setErrorMessage("Please fill all required fields.");
+    if (!title.trim()) {
+      setErrorMessage("Snippet title is mandatory.");
+      setErrorModal(true);
+      return;
+    }
+
+    if (!code.trim()) {
+      setErrorMessage("Snippet code is mandatory. It cannot be empty.");
       setErrorModal(true);
       return;
     }
@@ -74,8 +82,8 @@ export default function EditSnippet() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading snippet...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading snippet...</Text>
       </View>
     );
   }
@@ -83,71 +91,71 @@ export default function EditSnippet() {
   return (
     <>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{ flex: 1, backgroundColor: colors.background }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
-          style={styles.container}
+          style={[styles.container, { backgroundColor: colors.background }]}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle={colors.statusBar} />
 
-          <Text style={styles.heading}>Edit Snippet</Text>
+          <Text style={[styles.heading, { color: colors.text }]}>Edit Snippet</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Title</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Title *</Text>
 
             <TextInput
               value={title}
               onChangeText={setTitle}
               placeholder="Enter title"
-              placeholderTextColor="#888"
-              style={styles.input}
+              placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Language</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Language</Text>
 
             <TextInput
               value={language}
               onChangeText={setLanguage}
               placeholder="JavaScript"
-              placeholderTextColor="#888"
-              style={styles.input}
+              placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Tags</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Tags</Text>
 
             <TextInput
               value={tags}
               onChangeText={setTags}
               placeholder="react, api, hooks"
-              placeholderTextColor="#888"
-              style={styles.input}
+              placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Code</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Code *</Text>
 
             <TextInput
               value={code}
               onChangeText={setCode}
               placeholder="Write your code..."
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
               multiline
               textAlignVertical="top"
-              style={styles.codeInput}
+              style={[styles.codeInput, { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.border }]}
             />
           </View>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, { backgroundColor: colors.primary }]}
             activeOpacity={0.85}
             onPress={handleUpdate}
           >
@@ -159,19 +167,19 @@ export default function EditSnippet() {
       {/* Success Modal */}
       <Modal visible={successModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.iconCircle}>
-              <Text style={styles.icon}>✓</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.iconCircle, { backgroundColor: colors.glow }]}>
+              <Text style={[styles.icon, { color: colors.primary }]}>✓</Text>
             </View>
 
-            <Text style={styles.modalTitle}>Snippet Updated</Text>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Snippet Updated</Text>
 
-            <Text style={styles.modalText}>
+            <Text style={[styles.modalText, { color: colors.subText }]}>
               Your snippet has been updated successfully.
             </Text>
 
             <TouchableOpacity
-              style={styles.modalButton}
+              style={[styles.modalButton, { backgroundColor: colors.primary }]}
               onPress={() => {
                 setSuccessModal(false);
 
@@ -192,17 +200,17 @@ export default function EditSnippet() {
       {/* Error Modal */}
       <Modal visible={errorModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={[styles.iconCircle, { backgroundColor: "#FF4D4F20" }]}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.iconCircle, { backgroundColor: "rgba(255, 77, 79, 0.15)" }]}>
               <Text style={[styles.icon, { color: "#FF4D4F" }]}>✕</Text>
             </View>
 
-            <Text style={styles.modalTitle}>Something Went Wrong</Text>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Something Went Wrong</Text>
 
-            <Text style={styles.modalText}>{errorMessage}</Text>
+            <Text style={[styles.modalText, { color: colors.subText }]}>{errorMessage}</Text>
 
             <TouchableOpacity
-              style={styles.modalButton}
+              style={[styles.modalButton, { backgroundColor: colors.primary }]}
               onPress={() => setErrorModal(false)}
             >
               <Text style={styles.modalButtonText}>Got It</Text>

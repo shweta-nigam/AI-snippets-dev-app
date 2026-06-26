@@ -16,6 +16,7 @@ import { getSnippetById, deleteSnippet } from "@/services/snippet.service";
 import SyntaxHighlighter from "react-native-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { CustomModal } from "@/components/CustomModal";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
@@ -36,6 +37,7 @@ const getLanguage = (lang: string) => {
 };
 
 export default function SnippetDetails() {
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams();
 
   const [snippet, setSnippet] = useState<ISnippet | null>(null);
@@ -62,30 +64,30 @@ export default function SnippetDetails() {
 
   if (!snippet) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading snippet...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading snippet...</Text>
       </View>
     );
   }
 
   return (
     <>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <StatusBar barStyle="light-content" />
+      <ScrollView style={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+        <StatusBar barStyle={colors.statusBar} />
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>{snippet.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{snippet.title}</Text>
 
-          <Text style={styles.language}>{snippet.language}</Text>
+          <Text style={[styles.language, { backgroundColor: colors.glow, color: colors.primary }]}>{snippet.language}</Text>
         </View>
 
         {/* Tags */}
         <View style={styles.tagsContainer}>
-          <Text style={styles.tags}>{snippet.tags}</Text>
+          <Text style={[styles.tags, { color: colors.subText }]}>{snippet.tags}</Text>
         </View>
 
         {/* Code Block */}
-        <View style={styles.codeCard}>
+        <View style={[styles.codeCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <SyntaxHighlighter
             language={snippet.language ? getLanguage(snippet.language) : "text"}
             style={atomOneDark}
@@ -103,7 +105,7 @@ export default function SnippetDetails() {
         {/* Buttons */}
         <View style={styles.actions}>
           <TouchableOpacity
-            style={styles.editButton}
+            style={[styles.editButton, { backgroundColor: colors.primary }]}
             activeOpacity={0.85}
             onPress={() =>
               router.push({
@@ -118,11 +120,11 @@ export default function SnippetDetails() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={[styles.deleteButton, { backgroundColor: colors.isDark ? "#26262F" : "#E5E7EB" }]}
             activeOpacity={0.85}
             onPress={() => setDeleteConfirmVisible(true)}
           >
-            <Text style={styles.buttonText}>Delete</Text>
+            <Text style={[styles.buttonText, { color: colors.text }]}>Delete</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

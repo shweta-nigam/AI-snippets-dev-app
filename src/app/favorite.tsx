@@ -19,10 +19,12 @@ import {
 import { Heart, Code2, ChevronLeft } from "lucide-react-native";
 
 import { ISnippet } from "@/types/snippet";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function FavoriteScreen() {
+  const { colors } = useTheme();
   const [snippets, setSnippets] = useState<ISnippet[]>([]);
 
   async function loadFavorites() {
@@ -37,27 +39,27 @@ export default function FavoriteScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar} />
 
       {/* Header */}
       <View style={styles.hero}>
         <View style={styles.headerRow}>
           <TouchableOpacity
-            style={styles.backButton}
+            style={[styles.backButton, { backgroundColor: colors.isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderColor: colors.border }]}
             onPress={() => router.back()}
             activeOpacity={0.7}
           >
-            <ChevronLeft size={24} color="#fff" />
+            <ChevronLeft size={24} color={colors.text} />
           </TouchableOpacity>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>FAVORITES</Text>
+          <View style={[styles.badge, { backgroundColor: colors.glow, borderColor: colors.border }]}>
+            <Text style={[styles.badgeText, { color: colors.text }]}>FAVORITES</Text>
           </View>
         </View>
 
-        <Text style={styles.heading}>Favorite Snippets</Text>
+        <Text style={[styles.heading, { color: colors.text }]}>Favorite Snippets</Text>
 
-        <Text style={styles.subHeading}>
+        <Text style={[styles.subHeading, { color: colors.subText }]}>
           Quickly access your most loved and reusable code snippets.
         </Text>
       </View>
@@ -73,15 +75,15 @@ export default function FavoriteScreen() {
         }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <View style={styles.emptyIcon}>
-              <Heart size={40} color="#777" />
+            <View style={[styles.emptyIcon, { backgroundColor: colors.card }]}>
+              <Heart size={40} color={colors.subText} />
             </View>
 
-            <Text style={styles.emptyTitle}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
               No Favorites Yet
             </Text>
 
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: colors.subText }]}>
               Add snippets to favorites to access them faster.
             </Text>
           </View>
@@ -89,16 +91,16 @@ export default function FavoriteScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             activeOpacity={0.88}
-            style={styles.card}
+            style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={() =>
               router.push(`/snippets/${item.id}`)
             }
           >
-            <View style={styles.glow} />
+            <View style={[styles.glow, { backgroundColor: colors.glow }]} />
 
             {/* Top Row */}
             <View style={styles.topRow}>
-              <View style={styles.languageBadge}>
+              <View style={[styles.languageBadge, { backgroundColor: colors.primary }]}>
                 <Code2 size={14} color="#fff" />
 
                 <Text style={styles.languageText}>
@@ -108,7 +110,7 @@ export default function FavoriteScreen() {
 
               {/* Favorite Toggle */}
               <Pressable
-                style={styles.favoriteButton}
+                style={[styles.favoriteButton, { backgroundColor: colors.isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" }]}
                 onPress={async () => {
                   await toggleFavorite(item.id, 0);
                   loadFavorites();
@@ -123,12 +125,12 @@ export default function FavoriteScreen() {
             </View>
 
             {/* Title */}
-            <Text style={styles.cardTitle}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
               {item.title}
             </Text>
 
             {/* Tags */}
-            <Text style={styles.tags}>
+            <Text style={[styles.tags, { color: colors.subText }]}>
               {item.tags}
             </Text>
 
@@ -136,7 +138,7 @@ export default function FavoriteScreen() {
             <View style={styles.footer}>
               <View style={styles.dot} />
 
-              <Text style={styles.footerText}>
+              <Text style={[styles.footerText, { color: colors.subText }]}>
                 Favorite Snippet
               </Text>
             </View>

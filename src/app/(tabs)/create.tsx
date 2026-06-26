@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useTheme } from "@/context/ThemeContext";
+import { CustomModal } from "@/components/CustomModal";
 
 const MERLOT = "#6F1D3A";
 
@@ -22,8 +23,21 @@ export default function CreateSnippet() {
   const [tags, setTags] = useState("");
 
   const [successModal, setSuccessModal] = useState(false);
+  const [errorModal, setErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleCreateSnippet() {
+    if (!title.trim()) {
+      setErrorMessage("Snippet title is mandatory.");
+      setErrorModal(true);
+      return;
+    }
+    if (!code.trim()) {
+      setErrorMessage("Snippet code is mandatory. It cannot be empty.");
+      setErrorModal(true);
+      return;
+    }
+
     try {
       await createSnippet(title, code, language, tags);
 
@@ -160,6 +174,14 @@ export default function CreateSnippet() {
           </View>
         </View>
       </Modal>
+
+      <CustomModal
+        visible={errorModal}
+        title="Validation Error"
+        message={errorMessage}
+        type="warning"
+        onClose={() => setErrorModal(false)}
+      />
     </>
   );
 }
