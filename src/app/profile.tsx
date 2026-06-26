@@ -12,7 +12,8 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
-import { ChevronLeft, User, Briefcase, Shuffle, Save } from "lucide-react-native";
+import { ChevronLeft, User, Briefcase, Shuffle, Save, Upload } from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
 import { getUserProfile, updateUserProfile } from "@/services/profile.service";
 import { CustomModal } from "@/components/CustomModal";
 
@@ -61,6 +62,35 @@ export default function ProfileScreen() {
     // Dicebear Adventure style is cute and colorful
     const newAvatar = `https://api.dicebear.com/7.x/adventurer/png?seed=${seed}`;
     setAvatarUrl(newAvatar);
+  };
+
+  const handleUploadAvatar = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (status !== 'granted') {
+      showModal(
+        "Permission Denied",
+        "Sorry, we need camera roll permissions to make this work! Please enable them in your device settings.",
+        "warning"
+      );
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setAvatarUrl(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      showModal("Error", "Failed to select an image. Please try again.", "error");
+    }
   };
 
   const handleSave = async () => {
@@ -126,14 +156,25 @@ export default function ProfileScreen() {
           <View style={styles.avatarGlow} />
           <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
           
-          <TouchableOpacity
-            style={styles.randomBtn}
-            onPress={handleRandomizeAvatar}
-            activeOpacity={0.8}
-          >
-            <Shuffle size={16} color="#FFF" />
-            <Text style={styles.randomBtnText}>Randomize Avatar</Text>
-          </TouchableOpacity>
+          <View style={styles.avatarActionRow}>
+            <TouchableOpacity
+              style={styles.avatarBtn}
+              onPress={handleUploadAvatar}
+              activeOpacity={0.8}
+            >
+              <Upload size={16} color="#FFF" />
+              <Text style={styles.avatarBtnText}>Upload Image</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.avatarBtn}
+              onPress={handleRandomizeAvatar}
+              activeOpacity={0.8}
+            >
+              <Shuffle size={16} color="#FFF" />
+              <Text style={styles.avatarBtnText}>Randomize</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Form Fields */}
@@ -289,19 +330,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  randomBtn: {
+  avatarActionRow: {
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "center",
+    width: "100%",
+  },
+
+  avatarBtn: {
+    flex: 1,
     backgroundColor: "#1F1F2A",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     borderRadius: 14,
   },
 
-  randomBtnText: {
+  avatarBtnText: {
     color: "#FFF",
     fontSize: 13,
     fontWeight: "700",
