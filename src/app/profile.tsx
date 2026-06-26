@@ -16,10 +16,12 @@ import { ChevronLeft, User, Briefcase, Shuffle, Save, Upload } from "lucide-reac
 import * as ImagePicker from "expo-image-picker";
 import { getUserProfile, updateUserProfile } from "@/services/profile.service";
 import { CustomModal } from "@/components/CustomModal";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function ProfileScreen() {
+  const { themeMode, colors, setThemeMode } = useTheme();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("https://api.dicebear.com/7.x/adventurer/png?seed=initial");
@@ -78,7 +80,7 @@ export default function ProfileScreen() {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -120,12 +122,12 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={colors.statusBar} />
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -134,45 +136,48 @@ export default function ProfileScreen() {
         <View style={styles.hero}>
           <View style={styles.headerRow}>
             <TouchableOpacity
-              style={styles.backButton}
+              style={[styles.backButton, { backgroundColor: colors.isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)" }]}
               onPress={() => router.back()}
               activeOpacity={0.7}
             >
-              <ChevronLeft size={24} color="#fff" />
+              <ChevronLeft size={24} color={colors.text} />
             </TouchableOpacity>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>USER PROFILE</Text>
+            <View style={[styles.badge, { backgroundColor: colors.glow, borderColor: colors.border }]}>
+              <Text style={[styles.badgeText, { color: colors.primary }]}>USER PROFILE</Text>
             </View>
           </View>
 
-          <Text style={styles.heading}>Edit Profile</Text>
-          <Text style={styles.subHeading}>
-            Customize your coder identity and randomize your developer avatar.
+          <Text style={[styles.heading, { color: colors.text }]}>Settings</Text>
+          <Text style={[styles.subHeading, { color: colors.subText }]}>
+            Customize your coder identity and configure your preferred application appearance.
           </Text>
         </View>
 
+        {/* Profile Settings Section */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Profile Settings</Text>
+
         {/* Avatar Card */}
-        <View style={styles.avatarCard}>
-          <View style={styles.avatarGlow} />
+        <View style={[styles.avatarCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[styles.avatarGlow, { backgroundColor: colors.glow }]} />
           <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
           
           <View style={styles.avatarActionRow}>
             <TouchableOpacity
-              style={styles.avatarBtn}
+              style={[styles.avatarBtn, { backgroundColor: colors.isDark ? "#1F1F2A" : "#F3F4F6", borderColor: colors.border }]}
               onPress={handleUploadAvatar}
               activeOpacity={0.8}
             >
-              <Upload size={16} color="#FFF" />
-              <Text style={styles.avatarBtnText}>Upload Image</Text>
+              <Upload size={16} color={colors.text} />
+              <Text style={[styles.avatarBtnText, { color: colors.text }]}>Upload Image</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.avatarBtn}
+              style={[styles.avatarBtn, { backgroundColor: colors.isDark ? "#1F1F2A" : "#F3F4F6", borderColor: colors.border }]}
               onPress={handleRandomizeAvatar}
               activeOpacity={0.8}
             >
-              <Shuffle size={16} color="#FFF" />
-              <Text style={styles.avatarBtnText}>Randomize</Text>
+              <Shuffle size={16} color={colors.text} />
+              <Text style={[styles.avatarBtnText, { color: colors.text }]}>Randomize</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -182,36 +187,85 @@ export default function ProfileScreen() {
           {/* Name Field */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
-              <User size={16} color="#8B8B95" />
-              <Text style={styles.label}>Display Name</Text>
+              <User size={16} color={colors.subText} />
+              <Text style={[styles.label, { color: colors.text }]}>Display Name</Text>
             </View>
             <TextInput
               value={name}
               onChangeText={setName}
               placeholder="e.g. Alex Mercer"
-              placeholderTextColor="#5C5C66"
-              style={styles.input}
+              placeholderTextColor={colors.isDark ? "#5C5C66" : "#A0A0AA"}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
             />
           </View>
 
           {/* Role Field */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
-              <Briefcase size={16} color="#8B8B95" />
-              <Text style={styles.label}>Professional Role</Text>
+              <Briefcase size={16} color={colors.subText} />
+              <Text style={[styles.label, { color: colors.text }]}>Professional Role</Text>
             </View>
             <TextInput
               value={role}
               onChangeText={setRole}
               placeholder="e.g. Frontend Developer"
-              placeholderTextColor="#5C5C66"
-              style={styles.input}
+              placeholderTextColor={colors.isDark ? "#5C5C66" : "#A0A0AA"}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
             />
+          </View>
+
+          {/* App Appearance Section */}
+          <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 16 }]}>App Appearance</Text>
+          <View style={[styles.appearanceCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.appearanceSub, { color: colors.subText }]}>Select color theme mode:</Text>
+            <View style={styles.themeOptions}>
+              {/* Default Theme */}
+              <TouchableOpacity
+                style={[
+                  styles.themeBtn,
+                  themeMode === "default" && styles.themeBtnActive,
+                  { borderColor: themeMode === "default" ? colors.primary : colors.border }
+                ]}
+                onPress={() => setThemeMode("default")}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.themePreview, { backgroundColor: "#6F1D3A" }]} />
+                <Text style={[styles.themeBtnText, { color: colors.text }]}>Merlot</Text>
+              </TouchableOpacity>
+
+              {/* Light Theme */}
+              <TouchableOpacity
+                style={[
+                  styles.themeBtn,
+                  themeMode === "light" && styles.themeBtnActive,
+                  { borderColor: themeMode === "light" ? colors.primary : colors.border }
+                ]}
+                onPress={() => setThemeMode("light")}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.themePreview, { backgroundColor: "#E5E7EB", borderWidth: 1, borderColor: "#B9B9C2" }]} />
+                <Text style={[styles.themeBtnText, { color: colors.text }]}>Light</Text>
+              </TouchableOpacity>
+
+              {/* Blue Theme */}
+              <TouchableOpacity
+                style={[
+                  styles.themeBtn,
+                  themeMode === "blue" && styles.themeBtnActive,
+                  { borderColor: themeMode === "blue" ? colors.primary : colors.border }
+                ]}
+                onPress={() => setThemeMode("blue")}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.themePreview, { backgroundColor: "#3B82F6" }]} />
+                <Text style={[styles.themeBtnText, { color: colors.text }]}>Blue</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Save Button */}
           <TouchableOpacity
-            style={styles.saveButton}
+            style={[styles.saveButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
             onPress={handleSave}
             activeOpacity={0.85}
           >
@@ -408,5 +462,56 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 15,
     fontWeight: "700",
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 14,
+    marginTop: 24,
+    letterSpacing: 0.3,
+  },
+
+  appearanceCard: {
+    padding: 20,
+    borderRadius: 24,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+
+  appearanceSub: {
+    fontSize: 13,
+    fontWeight: "500",
+    marginBottom: 16,
+  },
+
+  themeOptions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+
+  themeBtn: {
+    flex: 1,
+    borderWidth: 2,
+    borderRadius: 16,
+    padding: 12,
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(255,255,255,0.02)",
+  },
+
+  themeBtnActive: {
+    // Dynamic border color via inline styles
+  },
+
+  themePreview: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+  },
+
+  themeBtnText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

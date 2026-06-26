@@ -1,7 +1,9 @@
 import { createSnippet } from "@/services/snippet.service";
 import { useState } from "react";
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -10,10 +12,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function CreateSnippet() {
+  const { colors } = useTheme();
   const [title, setTittle] = useState("");
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("");
@@ -38,61 +42,59 @@ export default function CreateSnippet() {
 
   return (
     <>
-      <ScrollView
-        style={styles.container}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: 140,
-        }}
-      >
-        <StatusBar barStyle="light-content" />
+      <KeyboardAvoidingView
+  style={styles.container}
+   behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={80}
+>
+        <StatusBar barStyle={colors.statusBar} />
 
         <View style={styles.hero}>
-          <Text style={styles.heading}>Create Snippet</Text>
+          <Text style={[styles.heading, { color: colors.text }]}>Create Snippet</Text>
         </View>
 
         <View style={styles.formCard}>
           <TextInput
             placeholder="Snippet title"
-            placeholderTextColor="#7B7B85"
+            placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
             value={title}
             onChangeText={setTittle}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           />
 
           <TextInput
             placeholder="Language"
-            placeholderTextColor="#7B7B85"
+            placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
             value={language}
             onChangeText={setLanguage}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           />
 
           <TextInput
             placeholder="Tags"
-            placeholderTextColor="#7B7B85"
+            placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
             value={tags}
             onChangeText={setTags}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           />
 
           <TextInput
             placeholder="// Write your code here"
-            placeholderTextColor="#7B7B85"
+            placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
             multiline
             value={code}
             onChangeText={setCode}
-            style={[styles.input, styles.codeInput]}
+            style={[styles.input, styles.codeInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           />
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, { backgroundColor: colors.primary }]}
             onPress={handleCreateSnippet}
           >
             <Text style={styles.buttonText}>Save Snippet</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Premium Success Modal */}
       <Modal
@@ -101,21 +103,21 @@ export default function CreateSnippet() {
         animationType="fade"
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.iconCircle}>
-              <Text style={styles.icon}>✓</Text>
+          <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.iconCircle, { backgroundColor: colors.glow }]}>
+              <Text style={[styles.icon, { color: colors.primary }]}>✓</Text>
             </View>
 
-            <Text style={styles.modalTitle}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               Snippet Saved
             </Text>
 
-            <Text style={styles.modalText}>
+            <Text style={[styles.modalText, { color: colors.subText }]}>
               Your snippet has been saved successfully.
             </Text>
 
             <TouchableOpacity
-              style={styles.modalButton}
+              style={[styles.modalButton, { backgroundColor: colors.primary }]}
               onPress={() => setSuccessModal(false)}
             >
               <Text style={styles.modalButtonText}>

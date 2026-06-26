@@ -15,10 +15,12 @@ import { useFocusEffect } from "expo-router";
 import { explainCode, saveApiKey, getApiKey, validateApiKey } from "@/services/ai.service";
 import { Key, Eye, EyeOff, Save, Sparkles, AlertTriangle } from "lucide-react-native";
 import { CustomModal } from "@/components/CustomModal";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 const AiScreen = () => {
+  const { colors } = useTheme();
   const [code, setCode] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -124,26 +126,26 @@ const AiScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={colors.statusBar} />
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Hero Card */}
-        <View style={styles.heroCard}>
-          <Text style={styles.heading}>AI Code Explainer</Text>
-          <Text style={styles.subHeading}>
+        <View style={[styles.heroCard, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.primary }]}>
+          <Text style={[styles.heading, { color: colors.text }]}>AI Code Explainer</Text>
+          <Text style={[styles.subHeading, { color: colors.subText }]}>
             Paste your code and get simple explanations instantly using your own Gemini Key.
           </Text>
         </View>
 
         {/* API Key Panel */}
-        <View style={styles.configCard}>
+        <View style={[styles.configCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <TouchableOpacity
             style={styles.configHeader}
             onPress={() => setShowConfig(!showConfig)}
@@ -151,7 +153,7 @@ const AiScreen = () => {
           >
             <View style={styles.configHeaderLeft}>
               <Key size={18} color={isConfigured ? "#2ecc71" : "#e67e22"} />
-              <Text style={styles.configTitle}>Gemini API Key Settings</Text>
+              <Text style={[styles.configTitle, { color: colors.text }]}>Gemini API Key Settings</Text>
             </View>
             <Text style={[styles.statusBadge, isConfigured ? styles.statusActive : styles.statusInactive]}>
               {isConfigured ? "Active" : "Key Required"}
@@ -160,31 +162,31 @@ const AiScreen = () => {
 
           {(showConfig || !isConfigured) && (
             <View style={styles.configBody}>
-              <Text style={styles.configInstructions}>
+              <Text style={[styles.configInstructions, { color: colors.subText }]}>
                 To generate explanations, create a free API Key on the Google AI Studio page and enter it below:
               </Text>
-              <View style={styles.inputRow}>
+              <View style={[styles.inputRow, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
                 <TextInput
                   placeholder="Paste your API key here (AIzaSy...)"
-                  placeholderTextColor="#7d7d88"
+                  placeholderTextColor={colors.isDark ? "#7d7d88" : "#8E8E9F"}
                   value={apiKey}
                   onChangeText={(text) => {
                     setApiKey(text);
                     if (text === "") setIsConfigured(false);
                   }}
                   secureTextEntry={!isKeyVisible}
-                  style={styles.keyInput}
+                  style={[styles.keyInput, { color: colors.text }]}
                 />
                 <TouchableOpacity
                   style={styles.iconBtn}
                   onPress={() => setIsKeyVisible(!isKeyVisible)}
                   activeOpacity={0.7}
                 >
-                  {isKeyVisible ? <EyeOff size={18} color="#FFF" /> : <Eye size={18} color="#FFF" />}
+                  {isKeyVisible ? <EyeOff size={18} color={colors.text} /> : <Eye size={18} color={colors.text} />}
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                style={[styles.saveBtn, isValidating && styles.buttonDisabled]}
+                style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }, isValidating && styles.buttonDisabled]}
                 onPress={handleSaveKey}
                 activeOpacity={0.8}
                 disabled={isValidating}
@@ -214,22 +216,23 @@ const AiScreen = () => {
 
         {/* Code Input */}
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Paste Your Code</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Paste Your Code</Text>
           <TextInput
             placeholder="Write or paste your code here..."
-            placeholderTextColor="#7d7d88"
+            placeholderTextColor={colors.isDark ? "#7d7d88" : "#8E8E9F"}
             multiline
             value={code}
             onChangeText={setCode}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           />
         </View>
 
         {/* Action Button */}
         <TouchableOpacity
-          style={[styles.button, !isConfigured && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: colors.primary, shadowColor: colors.primary }, !isConfigured && styles.buttonDisabled]}
           activeOpacity={0.8}
           onPress={handleExplain}
+          disabled={!isConfigured || loading}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -243,9 +246,9 @@ const AiScreen = () => {
 
         {/* Result Area */}
         {response ? (
-          <View style={styles.resultCard}>
-            <Text style={styles.resultTitle}>AI Explanation</Text>
-            <Text style={styles.resultText}>{response}</Text>
+          <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.resultTitle, { color: colors.text }]}>AI Explanation</Text>
+            <Text style={[styles.resultText, { color: colors.text }]       }>{response}</Text>
           </View>
         ) : null}
       </ScrollView>

@@ -11,10 +11,11 @@ import {
   Star,
   Clock,
 } from "lucide-react-native";
-
-const MERLOT = "#6F1D3A";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
@@ -22,9 +23,9 @@ export default function TabsLayout() {
 
         tabBarShowLabel: true,
 
-        tabBarActiveTintColor: "#FFFFFF",
+        tabBarActiveTintColor: colors.isDark ? "#FFFFFF" : colors.primary,
 
-        tabBarInactiveTintColor: "#7E7E8A",
+        tabBarInactiveTintColor: colors.subText,
 
         tabBarStyle: {
           position: "absolute",
@@ -35,14 +36,14 @@ export default function TabsLayout() {
 
           height: 78,
 
-          backgroundColor: "rgba(20,20,28,0.96)",
+          backgroundColor: colors.isDark ? "rgba(20,20,28,0.96)" : "rgba(255,255,255,0.96)",
 
           borderRadius: 28,
 
           borderTopWidth: 0,
 
           borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.05)",
+          borderColor: colors.border,
 
           paddingTop: 10,
           paddingBottom: 12,
@@ -54,7 +55,7 @@ export default function TabsLayout() {
             width: 0,
             height: 14,
           },
-          shadowOpacity: 0.45,
+          shadowOpacity: colors.isDark ? 0.45 : 0.1,
           shadowRadius: 28,
         },
 
@@ -84,7 +85,7 @@ export default function TabsLayout() {
             <View
               style={{
                 backgroundColor: focused
-                  ? "rgba(255,255,255,0.08)"
+                  ? (colors.isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)")
                   : "transparent",
 
                 padding: 8,
@@ -112,7 +113,7 @@ export default function TabsLayout() {
             <View
               style={{
                 backgroundColor: focused
-                  ? "rgba(255,255,255,0.08)"
+                  ? (colors.isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)")
                   : "transparent",
 
                 padding: 8,
@@ -142,7 +143,7 @@ export default function TabsLayout() {
                 width: focused ? 52 : 46,
                 height: focused ? 52 : 46,
 
-                backgroundColor: MERLOT,
+                backgroundColor: colors.primary,
 
                 borderRadius: 999,
 
@@ -151,7 +152,7 @@ export default function TabsLayout() {
 
                 marginTop: -24,
 
-                shadowColor: MERLOT,
+                shadowColor: colors.primary,
                 shadowOffset: {
                   width: 0,
                   height: 8,
@@ -162,7 +163,7 @@ export default function TabsLayout() {
                 elevation: 10,
 
                 borderWidth: 2,
-                borderColor: "rgba(255,255,255,0.08)",
+                borderColor: colors.isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
               }}
             >
               <Plus
@@ -185,7 +186,7 @@ export default function TabsLayout() {
             <View
               style={{
                 backgroundColor: focused
-                  ? "rgba(255,255,255,0.08)"
+                  ? (colors.isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)")
                   : "transparent",
 
                 padding: 8,
@@ -213,7 +214,7 @@ export default function TabsLayout() {
             <View
               style={{
                 backgroundColor: focused
-                  ? "rgba(255,255,255,0.08)"
+                  ? (colors.isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)")
                   : "transparent",
 
                 padding: 8,

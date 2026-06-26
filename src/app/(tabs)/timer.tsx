@@ -22,10 +22,12 @@ import {
 } from "lucide-react-native";
 import { createSession, updateSession, getAllSessions, ISession } from "@/services/session.service";
 import { CustomModal } from "@/components/CustomModal";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function TimerScreen() {
+  const { colors } = useTheme();
   const [seconds, setSeconds] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [sessionType, setSessionType] = useState<"Coding" | "Study" | "Project">("Coding");
@@ -229,8 +231,8 @@ export default function TimerScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar} />
 
       <FlatList
         data={history.slice(0, visibleCount)}
@@ -249,13 +251,13 @@ export default function TimerScreen() {
           <>
             {/* Hero Section */}
             <View style={styles.hero}>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>FOCUS MODE</Text>
+              <View style={[styles.badge, { backgroundColor: colors.glow, borderColor: colors.border }]}>
+                <Text style={[styles.badgeText, { color: colors.primary }]}>FOCUS MODE</Text>
               </View>
 
-              <Text style={styles.heading}>Time Tracker</Text>
+              <Text style={[styles.heading, { color: colors.text }]}>Time Tracker</Text>
 
-              <Text style={styles.subHeading}>
+              <Text style={[styles.subHeading, { color: colors.subText }]}>
                 Track your study sessions or coding streaks to measure your productivity.
               </Text>
             </View>
@@ -266,7 +268,8 @@ export default function TimerScreen() {
                 activeOpacity={0.8}
                 style={[
                   styles.modeButton,
-                  sessionType === "Coding" && styles.modeButtonActive,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  sessionType === "Coding" && { backgroundColor: colors.primary, borderColor: colors.primary },
                 ]}
                 onPress={() => {
                   if (!isRunning || seconds === 0) {
@@ -275,11 +278,12 @@ export default function TimerScreen() {
                   }
                 }}
               >
-                <Terminal size={18} color={sessionType === "Coding" ? "#FFF" : "#8B8B95"} />
+                <Terminal size={18} color={sessionType === "Coding" ? "#FFF" : colors.subText} />
                 <Text
                   style={[
                     styles.modeText,
-                    sessionType === "Coding" && styles.modeTextActive,
+                    { color: colors.subText },
+                    sessionType === "Coding" && { color: "#FFF" },
                   ]}
                 >
                   Coding
@@ -290,7 +294,8 @@ export default function TimerScreen() {
                 activeOpacity={0.8}
                 style={[
                   styles.modeButton,
-                  sessionType === "Study" && styles.modeButtonActive,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  sessionType === "Study" && { backgroundColor: colors.primary, borderColor: colors.primary },
                 ]}
                 onPress={() => {
                   if (!isRunning || seconds === 0) {
@@ -299,11 +304,12 @@ export default function TimerScreen() {
                   }
                 }}
               >
-                <BookOpen size={18} color={sessionType === "Study" ? "#FFF" : "#8B8B95"} />
+                <BookOpen size={18} color={sessionType === "Study" ? "#FFF" : colors.subText} />
                 <Text
                   style={[
                     styles.modeText,
-                    sessionType === "Study" && styles.modeTextActive,
+                    { color: colors.subText },
+                    sessionType === "Study" && { color: "#FFF" },
                   ]}
                 >
                   Study
@@ -314,7 +320,8 @@ export default function TimerScreen() {
                 activeOpacity={0.8}
                 style={[
                   styles.modeButton,
-                  sessionType === "Project" && styles.modeButtonActive,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  sessionType === "Project" && { backgroundColor: colors.primary, borderColor: colors.primary },
                 ]}
                 onPress={() => {
                   if (!isRunning || seconds === 0) {
@@ -323,11 +330,12 @@ export default function TimerScreen() {
                   }
                 }}
               >
-                <Briefcase size={18} color={sessionType === "Project" ? "#FFF" : "#8B8B95"} />
+                <Briefcase size={18} color={sessionType === "Project" ? "#FFF" : colors.subText} />
                 <Text
                   style={[
                     styles.modeText,
-                    sessionType === "Project" && styles.modeTextActive,
+                    { color: colors.subText },
+                    sessionType === "Project" && { color: "#FFF" },
                   ]}
                 >
                   Project
@@ -340,10 +348,10 @@ export default function TimerScreen() {
               <View style={styles.projectInputContainer}>
                 <TextInput
                   placeholder="Enter Project Name (e.g. Portfolio)"
-                  placeholderTextColor="#8B8B95"
+                  placeholderTextColor={colors.isDark ? "#8B8B95" : "#6B7280"}
                   value={projectTitle}
                   onChangeText={setProjectTitle}
-                  style={styles.projectInput}
+                  style={[styles.projectInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
                 />
               </View>
             )}
@@ -352,17 +360,18 @@ export default function TimerScreen() {
             <View
               style={[
                 styles.timerCircle,
-                isRunning && styles.timerCircleRunning,
+                { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.primary },
+                isRunning && { borderColor: colors.primary },
               ]}
             >
               {sessionType === "Project" && resumingSessionId && (
-                <Text style={styles.resumingText}>Resuming</Text>
+                <Text style={[styles.resumingText, { color: colors.primary }]}>Resuming</Text>
               )}
-              <Text style={styles.timerType} numberOfLines={1} ellipsizeMode="tail">
+              <Text style={[styles.timerType, { color: colors.subText }]} numberOfLines={1} ellipsizeMode="tail">
                 {sessionType === "Project" && projectTitle ? projectTitle.toUpperCase() : sessionType.toUpperCase()}
               </Text>
-              <Text style={styles.timerText}>{formatTime(seconds)}</Text>
-              <Text style={styles.timerSubText}>
+              <Text style={[styles.timerText, { color: colors.text }]}>{formatTime(seconds)}</Text>
+              <Text style={[styles.timerSubText, { color: colors.subText }]}>
                 {isRunning ? "Focusing..." : "Paused"}
               </Text>
             </View>
@@ -372,11 +381,11 @@ export default function TimerScreen() {
               {/* Reset */}
               <TouchableOpacity
                 activeOpacity={0.8}
-                style={styles.controlButtonCircle}
+                style={[styles.controlButtonCircle, { backgroundColor: colors.card, borderColor: colors.border }]}
                 onPress={handleReset}
                 disabled={seconds === 0}
               >
-                <RotateCcw size={22} color={seconds === 0 ? "#444" : "#FFF"} />
+                <RotateCcw size={22} color={seconds === 0 ? (colors.isDark ? "#444" : "#B9B9C2") : colors.text} />
               </TouchableOpacity>
 
               {/* Start/Pause */}
@@ -384,6 +393,7 @@ export default function TimerScreen() {
                 activeOpacity={0.85}
                 style={[
                   styles.controlButtonCircleMain,
+                  { backgroundColor: colors.primary, shadowColor: colors.primary },
                   isRunning && styles.controlButtonCirclePause,
                 ]}
                 onPress={handleStartPause}
@@ -398,35 +408,35 @@ export default function TimerScreen() {
               {/* Save */}
               <TouchableOpacity
                 activeOpacity={0.8}
-                style={styles.controlButtonCircle}
+                style={[styles.controlButtonCircle, { backgroundColor: colors.card, borderColor: colors.border }]}
                 onPress={handleSave}
                 disabled={seconds === 0}
               >
-                <Save size={22} color={seconds === 0 ? "#444" : "#FFF"} />
+                <Save size={22} color={seconds === 0 ? (colors.isDark ? "#444" : "#B9B9C2") : colors.text} />
               </TouchableOpacity>
             </View>
 
             {/* Recent Sessions List Header */}
             <View style={styles.historyHeader}>
-              <Text style={styles.historyTitle}>Focus History</Text>
-              <Text style={styles.historyCount}>{history.length}</Text>
+              <Text style={[styles.historyTitle, { color: colors.text }]}>Focus History</Text>
+              <Text style={[styles.historyCount, { backgroundColor: colors.glow, color: colors.primary, borderColor: colors.border }]}>{history.length}</Text>
             </View>
           </>
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Clock size={36} color="#444" style={{ marginBottom: 10 }} />
-            <Text style={styles.emptyText}>No focus sessions logged yet today.</Text>
+            <Clock size={36} color={colors.isDark ? "#444" : "#B9B9C2"} style={{ marginBottom: 10 }} />
+            <Text style={[styles.emptyText, { color: colors.subText }]}>No focus sessions logged yet today.</Text>
           </View>
         }
         ListFooterComponent={
           history.length > visibleCount ? (
             <TouchableOpacity
-              style={styles.loadMoreButton}
+              style={[styles.loadMoreButton, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => setVisibleCount((prev) => prev + 10)}
               activeOpacity={0.8}
             >
-              <Text style={styles.loadMoreText}>Load More</Text>
+              <Text style={[styles.loadMoreText, { color: colors.text }]}>Load More</Text>
             </TouchableOpacity>
           ) : null
         }
@@ -434,7 +444,7 @@ export default function TimerScreen() {
           <TouchableOpacity
             activeOpacity={0.85}
             onPress={() => handleResumeSession(item)}
-            style={styles.historyCard}
+            style={[styles.historyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
           >
             <View style={styles.historyCardLeft}>
               <View
@@ -459,13 +469,13 @@ export default function TimerScreen() {
                 )}
               </View>
               <View>
-                <Text style={styles.historyCardType}>
+                <Text style={[styles.historyCardType, { color: colors.text }]}>
                   {item.type === "Project" && item.title ? item.title : `${item.type} Session`}
                 </Text>
-                <Text style={styles.historyCardTime}>{formatTimeAgo(item.createdAt)}</Text>
+                <Text style={[styles.historyCardTime, { color: colors.subText }]}>{formatTimeAgo(item.createdAt)}</Text>
               </View>
             </View>
-            <Text style={styles.historyCardDuration}>{formatDuration(item.duration)}</Text>
+            <Text style={[styles.historyCardDuration, { color: colors.text }]}>{formatDuration(item.duration)}</Text>
           </TouchableOpacity>
         )}
       />

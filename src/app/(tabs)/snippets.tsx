@@ -16,6 +16,7 @@ import { getAllSnippets, toggleFavorite } from "@/services/snippet.service";
 import { ISnippet } from "@/types/snippet";
 import SyntaxHighlighter from "react-native-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useTheme } from "@/context/ThemeContext";
 
 const MERLOT = "#6F1D3A";
 
@@ -36,6 +37,7 @@ const getLanguage = (lang: string) => {
 };
 
 export default function SnippetsScreen() {
+  const { colors } = useTheme();
   const [snippets, setSnippets] = useState<ISnippet[]>([]);
   const [filterSnippets, setFilterSnippets] = useState<ISnippet[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,21 +87,21 @@ export default function SnippetsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={colors.statusBar} />
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.heading}>All Snippets</Text>
-        <Text style={styles.subHeading}>Browse your saved code collection</Text>
+        <Text style={[styles.heading, { color: colors.text }]}>All Snippets</Text>
+        <Text style={[styles.subHeading, { color: colors.subText }]}>Browse your saved code collection</Text>
       </View>
 
       <TextInput
         placeholder="Search snippets..."
-        placeholderTextColor="#7B7B85"
+        placeholderTextColor={colors.isDark ? "#7B7B85" : "#6B7280"}
         value={searchQuery}
         onChangeText={handleSearch}
-        style={styles.searchInput}
+        style={[styles.searchInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
       />
 
       {/* List */}
@@ -112,12 +114,12 @@ export default function SnippetsScreen() {
         }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No snippets found</Text>
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>No snippets found</Text>
+            <Text style={[styles.emptyText, { color: colors.subText }]}>
               Start saving snippets to build your library.
             </Text>
             <TouchableOpacity
-              style={styles.emptyCreateButton}
+              style={[styles.emptyCreateButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
               activeOpacity={0.85}
               onPress={() => router.push("/create")}
             >
@@ -128,19 +130,19 @@ export default function SnippetsScreen() {
         ListFooterComponent={
           filterSnippets.length > visibleCount ? (
             <TouchableOpacity
-              style={styles.loadMoreButton}
+              style={[styles.loadMoreButton, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => setVisibleCount((prev) => prev + 20)}
               activeOpacity={0.8}
             >
-              <Text style={styles.loadMoreText}>Load More</Text>
+              <Text style={[styles.loadMoreText, { color: colors.text }]}>Load More</Text>
             </TouchableOpacity>
           ) : null
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {/* Favorite Button */}
             <TouchableOpacity
-              style={styles.favoriteButton}
+              style={[styles.favoriteButton, { backgroundColor: colors.isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }]}
               onPress={async () => {
                 await toggleFavorite(item.id, item.isFavorite ? 0 : 1);
                 loadSnippets();
@@ -148,7 +150,7 @@ export default function SnippetsScreen() {
             >
               <Heart
                 size={20}
-                color={item.isFavorite ? "#ff4d6d" : "#9CA3AF"}
+                color={item.isFavorite ? "#ff4d6d" : colors.subText}
                 fill={item.isFavorite ? "#ff4d6d" : "transparent"}
               />
             </TouchableOpacity>
@@ -158,12 +160,12 @@ export default function SnippetsScreen() {
               activeOpacity={0.85}
               onPress={() => router.push(`/snippets/${item.id}`)}
             >
-              <View style={styles.glow} />
+              <View style={[styles.glow, { backgroundColor: colors.glow }]} />
 
-              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
 
               {/* Code Preview */}
-              <View style={styles.codePreviewCard}>
+              <View style={[styles.codePreviewCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
                 <SyntaxHighlighter
                   language={item.language ? getLanguage(item.language) : "text"}
                   style={atomOneDark}
@@ -179,11 +181,11 @@ export default function SnippetsScreen() {
               </View>
 
               <View style={styles.metaRow}>
-                <View style={styles.languageBadge}>
-                  <Text style={styles.languageText}>{item.language}</Text>
+                <View style={[styles.languageBadge, { backgroundColor: colors.glow }]}>
+                  <Text style={[styles.languageText, { color: colors.primary }]}>{item.language}</Text>
                 </View>
 
-                <Text style={styles.tagText}>{item.tags}</Text>
+                <Text style={[styles.tagText, { color: colors.subText }]}>{item.tags}</Text>
               </View>
             </TouchableOpacity>
           </View>
