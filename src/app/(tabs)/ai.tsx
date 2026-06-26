@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -11,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useFocusEffect } from "expo-router";
 import { explainCode, saveApiKey, getApiKey, validateApiKey } from "@/services/ai.service";
 import { Key, Eye, EyeOff, Save, Sparkles, AlertTriangle } from "lucide-react-native";
@@ -125,16 +123,15 @@ const AiScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.background }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+    <>
       <StatusBar barStyle={colors.statusBar} />
-      <ScrollView
+      <KeyboardAwareScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={80}
       >
         {/* Hero Card */}
         <View style={[styles.heroCard, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.primary }]}>
@@ -251,7 +248,7 @@ const AiScreen = () => {
             <Text style={[styles.resultText, { color: colors.text }]       }>{response}</Text>
           </View>
         ) : null}
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       <CustomModal
         visible={modalVisible}
@@ -264,7 +261,7 @@ const AiScreen = () => {
           if (modalOnConfirm) modalOnConfirm();
         }}
       />
-    </KeyboardAvoidingView>
+    </>
   );
 };
 
