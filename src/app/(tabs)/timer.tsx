@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -32,7 +32,7 @@ export default function TimerScreen() {
   const [projectTitle, setProjectTitle] = useState("");
   const [resumingSessionId, setResumingSessionId] = useState<number | null>(null);
   const [history, setHistory] = useState<ISession[]>([]);
-  const [visibleCount, setVisibleCount] = useState(20);
+  const [visibleCount, setVisibleCount] = useState(10);
 
   const intervalRef = useRef<any>(null);
 
@@ -66,7 +66,7 @@ export default function TimerScreen() {
   async function loadHistory() {
     const data = await getAllSessions();
     setHistory(data);
-    setVisibleCount(20);
+    setVisibleCount(10);
   }
 
   useFocusEffect(
@@ -229,175 +229,9 @@ export default function TimerScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* Hero Section */}
-      <View style={styles.hero}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>FOCUS MODE</Text>
-        </View>
-
-        <Text style={styles.heading}>Time Tracker</Text>
-
-        <Text style={styles.subHeading}>
-          Track your study sessions or coding streaks to measure your productivity.
-        </Text>
-      </View>
-
-      {/* Mode Selector */}
-      <View style={styles.modeContainer}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[
-            styles.modeButton,
-            sessionType === "Coding" && styles.modeButtonActive,
-          ]}
-          onPress={() => {
-            if (!isRunning || seconds === 0) {
-              setSessionType("Coding");
-              setResumingSessionId(null);
-            }
-          }}
-        >
-          <Terminal size={18} color={sessionType === "Coding" ? "#FFF" : "#8B8B95"} />
-          <Text
-            style={[
-              styles.modeText,
-              sessionType === "Coding" && styles.modeTextActive,
-            ]}
-          >
-            Coding
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[
-            styles.modeButton,
-            sessionType === "Study" && styles.modeButtonActive,
-          ]}
-          onPress={() => {
-            if (!isRunning || seconds === 0) {
-              setSessionType("Study");
-              setResumingSessionId(null);
-            }
-          }}
-        >
-          <BookOpen size={18} color={sessionType === "Study" ? "#FFF" : "#8B8B95"} />
-          <Text
-            style={[
-              styles.modeText,
-              sessionType === "Study" && styles.modeTextActive,
-            ]}
-          >
-            Study
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[
-            styles.modeButton,
-            sessionType === "Project" && styles.modeButtonActive,
-          ]}
-          onPress={() => {
-            if (!isRunning || seconds === 0) {
-              setSessionType("Project");
-              setResumingSessionId(null);
-            }
-          }}
-        >
-          <Briefcase size={18} color={sessionType === "Project" ? "#FFF" : "#8B8B95"} />
-          <Text
-            style={[
-              styles.modeText,
-              sessionType === "Project" && styles.modeTextActive,
-            ]}
-          >
-            Project
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Project Title Input (Only in Project mode) */}
-      {sessionType === "Project" && (
-        <View style={styles.projectInputContainer}>
-          <TextInput
-            placeholder="Enter Project Name (e.g. Portfolio)"
-            placeholderTextColor="#8B8B95"
-            value={projectTitle}
-            onChangeText={setProjectTitle}
-            style={styles.projectInput}
-          />
-        </View>
-      )}
-
-      {/* Timer Circle */}
-      <View
-        style={[
-          styles.timerCircle,
-          isRunning && styles.timerCircleRunning,
-        ]}
-      >
-        {sessionType === "Project" && resumingSessionId && (
-          <Text style={styles.resumingText}>Resuming</Text>
-        )}
-        <Text style={styles.timerType} numberOfLines={1} ellipsizeMode="tail">
-          {sessionType === "Project" && projectTitle ? projectTitle.toUpperCase() : sessionType.toUpperCase()}
-        </Text>
-        <Text style={styles.timerText}>{formatTime(seconds)}</Text>
-        <Text style={styles.timerSubText}>
-          {isRunning ? "Focusing..." : "Paused"}
-        </Text>
-      </View>
-
-      {/* Controls */}
-      <View style={styles.controlsContainer}>
-        {/* Reset */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.controlButtonCircle}
-          onPress={handleReset}
-          disabled={seconds === 0}
-        >
-          <RotateCcw size={22} color={seconds === 0 ? "#444" : "#FFF"} />
-        </TouchableOpacity>
-
-        {/* Start/Pause */}
-        <TouchableOpacity
-          activeOpacity={0.85}
-          style={[
-            styles.controlButtonCircleMain,
-            isRunning && styles.controlButtonCirclePause,
-          ]}
-          onPress={handleStartPause}
-        >
-          {isRunning ? (
-            <Pause size={28} color="#FFF" />
-          ) : (
-            <Play size={28} color="#FFF" style={{ marginLeft: 4 }} />
-          )}
-        </TouchableOpacity>
-
-        {/* Save */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.controlButtonCircle}
-          onPress={handleSave}
-          disabled={seconds === 0}
-        >
-          <Save size={22} color={seconds === 0 ? "#444" : "#FFF"} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Recent Sessions List Header */}
-      <View style={styles.historyHeader}>
-        <Text style={styles.historyTitle}>Focus History</Text>
-        <Text style={styles.historyCount}>{history.length}</Text>
-      </View>
-
-      {/* History List */}
       <FlatList
         data={history.slice(0, visibleCount)}
         keyExtractor={(item) => item.id.toString()}
@@ -405,6 +239,180 @@ export default function TimerScreen() {
         contentContainerStyle={{
           paddingBottom: 130,
         }}
+        onEndReached={() => {
+          if (history.length > visibleCount) {
+            setVisibleCount((prev) => prev + 10);
+          }
+        }}
+        onEndReachedThreshold={0.15}
+        ListHeaderComponent={
+          <>
+            {/* Hero Section */}
+            <View style={styles.hero}>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>FOCUS MODE</Text>
+              </View>
+
+              <Text style={styles.heading}>Time Tracker</Text>
+
+              <Text style={styles.subHeading}>
+                Track your study sessions or coding streaks to measure your productivity.
+              </Text>
+            </View>
+
+            {/* Mode Selector */}
+            <View style={styles.modeContainer}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={[
+                  styles.modeButton,
+                  sessionType === "Coding" && styles.modeButtonActive,
+                ]}
+                onPress={() => {
+                  if (!isRunning || seconds === 0) {
+                    setSessionType("Coding");
+                    setResumingSessionId(null);
+                  }
+                }}
+              >
+                <Terminal size={18} color={sessionType === "Coding" ? "#FFF" : "#8B8B95"} />
+                <Text
+                  style={[
+                    styles.modeText,
+                    sessionType === "Coding" && styles.modeTextActive,
+                  ]}
+                >
+                  Coding
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={[
+                  styles.modeButton,
+                  sessionType === "Study" && styles.modeButtonActive,
+                ]}
+                onPress={() => {
+                  if (!isRunning || seconds === 0) {
+                    setSessionType("Study");
+                    setResumingSessionId(null);
+                  }
+                }}
+              >
+                <BookOpen size={18} color={sessionType === "Study" ? "#FFF" : "#8B8B95"} />
+                <Text
+                  style={[
+                    styles.modeText,
+                    sessionType === "Study" && styles.modeTextActive,
+                  ]}
+                >
+                  Study
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={[
+                  styles.modeButton,
+                  sessionType === "Project" && styles.modeButtonActive,
+                ]}
+                onPress={() => {
+                  if (!isRunning || seconds === 0) {
+                    setSessionType("Project");
+                    setResumingSessionId(null);
+                  }
+                }}
+              >
+                <Briefcase size={18} color={sessionType === "Project" ? "#FFF" : "#8B8B95"} />
+                <Text
+                  style={[
+                    styles.modeText,
+                    sessionType === "Project" && styles.modeTextActive,
+                  ]}
+                >
+                  Project
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Project Title Input (Only in Project mode) */}
+            {sessionType === "Project" && (
+              <View style={styles.projectInputContainer}>
+                <TextInput
+                  placeholder="Enter Project Name (e.g. Portfolio)"
+                  placeholderTextColor="#8B8B95"
+                  value={projectTitle}
+                  onChangeText={setProjectTitle}
+                  style={styles.projectInput}
+                />
+              </View>
+            )}
+
+            {/* Timer Circle */}
+            <View
+              style={[
+                styles.timerCircle,
+                isRunning && styles.timerCircleRunning,
+              ]}
+            >
+              {sessionType === "Project" && resumingSessionId && (
+                <Text style={styles.resumingText}>Resuming</Text>
+              )}
+              <Text style={styles.timerType} numberOfLines={1} ellipsizeMode="tail">
+                {sessionType === "Project" && projectTitle ? projectTitle.toUpperCase() : sessionType.toUpperCase()}
+              </Text>
+              <Text style={styles.timerText}>{formatTime(seconds)}</Text>
+              <Text style={styles.timerSubText}>
+                {isRunning ? "Focusing..." : "Paused"}
+              </Text>
+            </View>
+
+            {/* Controls */}
+            <View style={styles.controlsContainer}>
+              {/* Reset */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.controlButtonCircle}
+                onPress={handleReset}
+                disabled={seconds === 0}
+              >
+                <RotateCcw size={22} color={seconds === 0 ? "#444" : "#FFF"} />
+              </TouchableOpacity>
+
+              {/* Start/Pause */}
+              <TouchableOpacity
+                activeOpacity={0.85}
+                style={[
+                  styles.controlButtonCircleMain,
+                  isRunning && styles.controlButtonCirclePause,
+                ]}
+                onPress={handleStartPause}
+              >
+                {isRunning ? (
+                  <Pause size={28} color="#FFF" />
+                ) : (
+                  <Play size={28} color="#FFF" style={{ marginLeft: 4 }} />
+                )}
+              </TouchableOpacity>
+
+              {/* Save */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.controlButtonCircle}
+                onPress={handleSave}
+                disabled={seconds === 0}
+              >
+                <Save size={22} color={seconds === 0 ? "#444" : "#FFF"} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Recent Sessions List Header */}
+            <View style={styles.historyHeader}>
+              <Text style={styles.historyTitle}>Focus History</Text>
+              <Text style={styles.historyCount}>{history.length}</Text>
+            </View>
+          </>
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Clock size={36} color="#444" style={{ marginBottom: 10 }} />
@@ -415,7 +423,7 @@ export default function TimerScreen() {
           history.length > visibleCount ? (
             <TouchableOpacity
               style={styles.loadMoreButton}
-              onPress={() => setVisibleCount((prev) => prev + 20)}
+              onPress={() => setVisibleCount((prev) => prev + 10)}
               activeOpacity={0.8}
             >
               <Text style={styles.loadMoreText}>Load More</Text>
@@ -461,6 +469,7 @@ export default function TimerScreen() {
           </TouchableOpacity>
         )}
       />
+
       <CustomModal
         visible={modalVisible}
         title={modalTitle}
@@ -474,7 +483,7 @@ export default function TimerScreen() {
           if (modalOnConfirm) modalOnConfirm();
         }}
       />
-    </ScrollView>
+    </View>
   );
 }
 
