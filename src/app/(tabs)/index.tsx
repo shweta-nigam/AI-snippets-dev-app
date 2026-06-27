@@ -100,16 +100,37 @@ export default function Index() {
       <StatusBar barStyle={colors.statusBar} />
 
       {/* Hero Section */}
-      <View style={[styles.hero, { backgroundColor: colors.card, borderColor: colors.border, padding: 24, borderRadius: 28, borderWidth: 1 }]}>
+      <View
+        style={[
+          styles.hero,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+            padding: 24,
+            borderRadius: 28,
+            borderWidth: 1,
+          },
+        ]}
+      >
         <View style={styles.topHeader}>
-          <View style={[styles.badge, { backgroundColor: colors.glow, borderColor: colors.border }]}>
-            <Text style={[styles.badgeText, { color: colors.primary }]}>AI Powered</Text>
+          <View
+            style={[
+              styles.badge,
+              { backgroundColor: colors.glow, borderColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.badgeText, { color: colors.primary }]}>
+              AI Powered
+            </Text>
           </View>
           {profile && (
             <Link href="/profile" asChild>
               <TouchableOpacity
                 activeOpacity={0.8}
-                style={StyleSheet.flatten([styles.avatarWrapper, { borderColor: colors.border }])}
+                style={StyleSheet.flatten([
+                  styles.avatarWrapper,
+                  { borderColor: colors.border },
+                ])}
               >
                 <Image
                   source={{ uri: profile.avatarUrl }}
@@ -128,19 +149,33 @@ export default function Index() {
         </Text>
 
         <Link href="/create" asChild>
-          <TouchableOpacity activeOpacity={0.85} style={StyleSheet.flatten([styles.createButton, { backgroundColor: colors.primary, shadowColor: colors.primary }])}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={StyleSheet.flatten([
+              styles.createButton,
+              { backgroundColor: colors.primary, shadowColor: colors.primary },
+            ])}
+          >
             <Text style={styles.createButtonText}>+ Create Snippet</Text>
           </TouchableOpacity>
         </Link>
       </View>
 
       {/* Quick Access */}
-      <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Access</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        Quick Access
+      </Text>
 
       <View style={styles.gridContainer}>
         {/* Favorites Card */}
         <Link href="/favorite" asChild>
-          <TouchableOpacity activeOpacity={0.85} style={StyleSheet.flatten([styles.gridCard, { backgroundColor: colors.card, borderColor: colors.border }])}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={StyleSheet.flatten([
+              styles.gridCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ])}
+          >
             <View style={styles.cardGlow} />
             <View
               style={[
@@ -151,15 +186,25 @@ export default function Index() {
               <Star color="#FFD700" size={22} fill="#FFD700" />
             </View>
             <View>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>Favorites</Text>
-              <Text style={[styles.cardText, { color: colors.subText }]}>Access starred snippets</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                Favorites
+              </Text>
+              <Text style={[styles.cardText, { color: colors.subText }]}>
+                Access starred snippets
+              </Text>
             </View>
           </TouchableOpacity>
         </Link>
 
         {/* Analysis Card */}
         <Link href="/analysis" asChild>
-          <TouchableOpacity activeOpacity={0.85} style={StyleSheet.flatten([styles.gridCard, { backgroundColor: colors.card, borderColor: colors.border }])}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={StyleSheet.flatten([
+              styles.gridCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ])}
+          >
             <View style={styles.cardGlowBlue} />
             <View
               style={[
@@ -170,21 +215,32 @@ export default function Index() {
               <BarChart2 color="#3498db" size={22} />
             </View>
             <View>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>Analysis</Text>
-              <Text style={[styles.cardText, { color: colors.subText }]}>Track stats & focus time</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                Analysis
+              </Text>
+              <Text style={[styles.cardText, { color: colors.subText }]}>
+                Track stats & focus time
+              </Text>
             </View>
           </TouchableOpacity>
         </Link>
       </View>
 
       {/* File Utilities */}
-      <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 24 }]}>File Manager</Text>
+      <Text
+        style={[styles.sectionTitle, { color: colors.text, marginTop: 24 }]}
+      >
+        File Manager
+      </Text>
 
       <View style={styles.gridContainer}>
         {/* Import Card */}
         <TouchableOpacity
           activeOpacity={0.85}
-          style={[styles.gridCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+          style={[
+            styles.gridCard,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
           onPress={handleImport}
         >
           <View style={styles.cardGlowGreen} />
@@ -197,15 +253,22 @@ export default function Index() {
             <FileUp color="#2ecc71" size={22} />
           </View>
           <View>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Import Code</Text>
-            <Text style={[styles.cardText, { color: colors.subText }]}>Pick local code files</Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
+              Import Code
+            </Text>
+            <Text style={[styles.cardText, { color: colors.subText }]}>
+              Pick local code files
+            </Text>
           </View>
         </TouchableOpacity>
 
         {/* Export Card */}
         <TouchableOpacity
           activeOpacity={0.85}
-          style={[styles.gridCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+          style={[
+            styles.gridCard,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
           onPress={handleExport}
         >
           <View style={styles.cardGlowOrange} />
@@ -218,8 +281,12 @@ export default function Index() {
             <FileDown color="#e67e22" size={22} />
           </View>
           <View>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Export Code</Text>
-            <Text style={[styles.cardText, { color: colors.subText }]}>Share snippets backup</Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>
+              Export Code
+            </Text>
+            <Text style={[styles.cardText, { color: colors.subText }]}>
+              Share snippets backup
+            </Text>
           </View>
         </TouchableOpacity>
       </View>

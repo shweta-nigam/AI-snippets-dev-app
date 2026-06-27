@@ -20,7 +20,7 @@ export const themeColors: Record<ThemeMode, IThemeColors> = {
   default: {
     primary: "#6F1D3A",
     background: "#606066",
-    card: "#15151C",
+    card: "#15151cec",
     text: "#FFFFFF",
     subText: "#A0A0AA",
     border: "rgba(255,255,255,0.05)",
