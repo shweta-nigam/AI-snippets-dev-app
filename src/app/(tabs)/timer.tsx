@@ -21,8 +21,9 @@ import {
   Terminal,
   Clock,
   Briefcase,
+  X,
 } from "lucide-react-native";
-import { createSession, updateSession, getAllSessions, ISession } from "@/services/session.service";
+import { createSession, updateSession, getAllSessions, ISession, deleteSession, clearAllSessions } from "@/services/session.service";
 import { CustomModal } from "@/components/CustomModal";
 import { useTheme } from "@/context/ThemeContext";
 import { useTimer } from "@/context/TimerContext";
@@ -259,6 +260,38 @@ export default function TimerScreen() {
     }
   };
 
+  const handleDeleteSession = (item: ISession) => {
+    showModal(
+      "Delete Session?",
+      `Are you sure you want to delete this ${item.type} session?`,
+      "warning",
+      async () => {
+        const success = await deleteSession(item.id);
+        if (success) {
+          loadHistory();
+        }
+      },
+      true,
+      "Delete"
+    );
+  };
+
+  const handleClearHistory = () => {
+    showModal(
+      "Clear History?",
+      "Are you sure you want to clear all focus sessions? This action cannot be undone.",
+      "warning",
+      async () => {
+        const success = await clearAllSessions();
+        if (success) {
+          loadHistory();
+        }
+      },
+      true,
+      "Clear All"
+    );
+  };
+
   // Helper formats
   const formatTime = (totalSeconds: number) => {
     const hrs = Math.floor(totalSeconds / 3600);
@@ -479,8 +512,19 @@ export default function TimerScreen() {
 
             {/* Recent Sessions List Header */}
             <View style={styles.historyHeader}>
-              <Text style={[styles.historyTitle, { color: colors.text }]}>Focus History</Text>
-              <Text style={[styles.historyCount, { backgroundColor: colors.glow, color: colors.primary, borderColor: colors.border }]}>{history.length}</Text>
+              <View style={styles.historyHeaderLeft}>
+                <Text style={[styles.historyTitle, { color: colors.text }]}>Focus History</Text>
+                <Text style={[styles.historyCount, { backgroundColor: colors.glow, color: colors.primary, borderColor: colors.border }]}>{history.length}</Text>
+              </View>
+              {history.length > 0 && (
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={handleClearHistory}
+                  style={styles.clearHistoryBtn}
+                >
+                  <Text style={[styles.clearHistoryText, { color: colors.primary }]}>Clear History</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </>
         }
@@ -502,42 +546,52 @@ export default function TimerScreen() {
           ) : null
         }
         renderItem={({ item }) => (
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={() => handleResumeSession(item)}
-            style={[styles.historyCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-          >
-            <View style={styles.historyCardLeft}>
-              <View
-                style={[
-                  styles.historyIconContainer,
-                  {
-                    backgroundColor:
-                      item.type === "Coding"
-                        ? "rgba(111,29,58,0.15)"
-                        : item.type === "Study"
-                        ? "rgba(52,152,219,0.15)"
-                        : "rgba(46,204,113,0.15)",
-                  },
-                ]}
-              >
-                {item.type === "Coding" ? (
-                  <Terminal size={16} color="#D47A9A" />
-                ) : item.type === "Study" ? (
-                  <BookOpen size={16} color="#3498db" />
-                ) : (
-                  <Briefcase size={16} color="#2ecc71" />
-                )}
+          <View style={[styles.historyCard, { backgroundColor: colors.card, borderColor: colors.border, padding: 0 }]}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => handleResumeSession(item)}
+              style={styles.historyCardMain}
+            >
+              <View style={styles.historyCardLeft}>
+                <View
+                  style={[
+                    styles.historyIconContainer,
+                    {
+                      backgroundColor:
+                        item.type === "Coding"
+                          ? "rgba(111,29,58,0.15)"
+                          : item.type === "Study"
+                          ? "rgba(52,152,219,0.15)"
+                          : "rgba(46,204,113,0.15)",
+                    },
+                  ]}
+                >
+                  {item.type === "Coding" ? (
+                    <Terminal size={16} color="#D47A9A" />
+                  ) : item.type === "Study" ? (
+                    <BookOpen size={16} color="#3498db" />
+                  ) : (
+                    <Briefcase size={16} color="#2ecc71" />
+                  )}
+                </View>
+                <View style={{ flexShrink: 1 }}>
+                  <Text style={[styles.historyCardType, { color: colors.text }]} numberOfLines={1} ellipsizeMode="tail">
+                    {item.type === "Project" && item.title ? item.title : `${item.type} Session`}
+                  </Text>
+                  <Text style={[styles.historyCardTime, { color: colors.subText }]}>{formatTimeAgo(item.createdAt)}</Text>
+                </View>
               </View>
-              <View>
-                <Text style={[styles.historyCardType, { color: colors.text }]}>
-                  {item.type === "Project" && item.title ? item.title : `${item.type} Session`}
-                </Text>
-                <Text style={[styles.historyCardTime, { color: colors.subText }]}>{formatTimeAgo(item.createdAt)}</Text>
-              </View>
-            </View>
-            <Text style={[styles.historyCardDuration, { color: colors.text }]}>{formatDuration(item.duration)}</Text>
-          </TouchableOpacity>
+              <Text style={[styles.historyCardDuration, { color: colors.text, marginLeft: 8 }]}>{formatDuration(item.duration)}</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => handleDeleteSession(item)}
+              style={styles.deleteLogBtn}
+            >
+              <X size={16} color={colors.subText} />
+            </TouchableOpacity>
+          </View>
         )}
       />
 
@@ -726,6 +780,23 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
 
+  historyHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  clearHistoryBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+
+  clearHistoryText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
   historyTitle: {
     color: "#FFFFFF",
     fontSize: 18,
@@ -755,13 +826,28 @@ const styles = StyleSheet.create({
   historyCard: {
     backgroundColor: "#14141C",
     borderRadius: 18,
-    padding: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 10,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.04)",
+    overflow: "hidden",
+  },
+
+  historyCardMain: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingLeft: 14,
+  },
+
+  deleteLogBtn: {
+    padding: 14,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   historyCardLeft: {

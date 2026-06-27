@@ -104,3 +104,32 @@ export const getSnippetLanguageStats = async () => {
     return [];
   }
 };
+
+/**
+ * Deletes a specific session by its ID.
+ */
+export const deleteSession = async (id: number): Promise<boolean> => {
+  try {
+    await db.runAsync("DELETE FROM sessions WHERE id = ?", [id]);
+    console.log(`Session with ID ${id} deleted successfully.`);
+    return true;
+  } catch (error) {
+    console.error(`Error deleting session with ID ${id}:`, error);
+    return false;
+  }
+};
+
+/**
+ * Clears all sessions from the sessions table.
+ */
+export const clearAllSessions = async (): Promise<boolean> => {
+  try {
+    await db.runAsync("DELETE FROM sessions");
+    console.log("All focus sessions cleared successfully.");
+    return true;
+  } catch (error) {
+    console.error("Error clearing all focus sessions:", error);
+    return false;
+  }
+};
+
