@@ -12,16 +12,18 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
-import { ChevronLeft, User, Briefcase, Shuffle, Save, Upload } from "lucide-react-native";
+import { ChevronLeft, User, Briefcase, Shuffle, Save, Upload, Clock, Lock } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { getUserProfile, updateUserProfile } from "@/services/profile.service";
 import { CustomModal } from "@/components/CustomModal";
 import { useTheme } from "@/context/ThemeContext";
+import { useTimer } from "@/context/TimerContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function ProfileScreen() {
   const { themeMode, colors, setThemeMode } = useTheme();
+  const { timerMode, setTimerMode, focusMode, setFocusMode } = useTimer();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("https://api.dicebear.com/7.x/adventurer/png?seed=initial");
@@ -56,6 +58,7 @@ export default function ProfileScreen() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProfile();
   }, []);
 
@@ -212,6 +215,109 @@ export default function ProfileScreen() {
               placeholderTextColor={colors.isDark ? "#5C5C66" : "#A0A0AA"}
               style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
             />
+          </View>
+
+          {/* Timer Settings Section */}
+          <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 16 }]}>Timer Settings</Text>
+          <View style={[styles.timerCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            {/* Timer Mode Option */}
+            <View style={styles.settingGroup}>
+              <View style={styles.settingHeader}>
+                <Clock size={16} color={colors.subText} style={{ marginRight: 6 }} />
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Timer Mode</Text>
+              </View>
+              <Text style={[styles.settingSub, { color: colors.subText }]}>
+                Choose how the focus timer behaves when the app is minimized or backgrounded:
+              </Text>
+              
+              <View style={styles.radioOptions}>
+                {/* App Only */}
+                <TouchableOpacity
+                  style={[
+                    styles.radioBtn,
+                    timerMode === "app_only" && styles.radioBtnActive,
+                    {
+                      borderColor: timerMode === "app_only" ? colors.primary : colors.border,
+                      backgroundColor: colors.isDark ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)",
+                    }
+                  ]}
+                  onPress={() => setTimerMode("app_only")}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.radioOutline, { borderColor: timerMode === "app_only" ? colors.primary : colors.subText }]}>
+                    {timerMode === "app_only" && <View style={[styles.radioFill, { backgroundColor: colors.primary }]} />}
+                  </View>
+                  <View style={styles.radioTextContainer}>
+                    <Text style={[styles.radioBtnText, { color: colors.text }]}>App Only</Text>
+                    <Text style={[styles.radioBtnDesc, { color: colors.subText }]}>Pauses timer when app is minimized</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Keep Running */}
+                <TouchableOpacity
+                  style={[
+                    styles.radioBtn,
+                    timerMode === "keep_running" && styles.radioBtnActive,
+                    {
+                      borderColor: timerMode === "keep_running" ? colors.primary : colors.border,
+                      backgroundColor: colors.isDark ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.01)",
+                    }
+                  ]}
+                  onPress={() => setTimerMode("keep_running")}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.radioOutline, { borderColor: timerMode === "keep_running" ? colors.primary : colors.subText }]}>
+                    {timerMode === "keep_running" && <View style={[styles.radioFill, { backgroundColor: colors.primary }]} />}
+                  </View>
+                  <View style={styles.radioTextContainer}>
+                    <Text style={[styles.radioBtnText, { color: colors.text }]}>Keep Running</Text>
+                    <Text style={[styles.radioBtnDesc, { color: colors.subText }]}>Timer continues running in the background</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Divider */}
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+            {/* Focus Mode Option */}
+            <View style={styles.settingGroup}>
+              <View style={styles.settingHeader}>
+                <Lock size={16} color={colors.subText} style={{ marginRight: 6 }} />
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Focus Mode</Text>
+              </View>
+              
+              <View style={styles.switchRow}>
+                <View style={styles.switchTextContainer}>
+                  <Text style={[styles.switchLabel, { color: colors.text }]}>Stay on This Screen</Text>
+                  <Text style={[styles.switchDesc, { color: colors.subText }]}>
+                    Lock navigation away from the timer when running to prevent distractions
+                  </Text>
+                </View>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.customSwitch,
+                    {
+                      backgroundColor: focusMode ? colors.primary : (colors.isDark ? "#26262F" : "#E5E7EB"),
+                      borderColor: colors.border,
+                    }
+                  ]}
+                  onPress={() => setFocusMode(!focusMode)}
+                  activeOpacity={0.8}
+                >
+                  <View
+                    style={[
+                      styles.switchThumb,
+                      {
+                        transform: [{ translateX: focusMode ? 22 : 2 }],
+                        backgroundColor: "#FFF",
+                      }
+                    ]}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           {/* App Appearance Section */}
@@ -513,5 +619,112 @@ const styles = StyleSheet.create({
   themeBtnText: {
     fontSize: 13,
     fontWeight: "600",
+  },
+
+  timerCard: {
+    padding: 20,
+    borderRadius: 24,
+    borderWidth: 1,
+    marginBottom: 16,
+    gap: 16,
+  },
+  settingGroup: {
+    width: "100%",
+  },
+  settingHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  settingTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  settingSub: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  radioOptions: {
+    gap: 10,
+  },
+  radioBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  radioBtnActive: {
+    // Active styling handled inline
+  },
+  radioOutline: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  radioFill: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  radioTextContainer: {
+    flex: 1,
+  },
+  radioBtnText: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  radioBtnDesc: {
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  divider: {
+    height: 1,
+    width: "100%",
+    marginVertical: 4,
+  },
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 4,
+  },
+  switchTextContainer: {
+    flex: 1,
+  },
+  switchLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  switchDesc: {
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  customSwitch: {
+    width: 48,
+    height: 26,
+    borderRadius: 13,
+    padding: 2,
+    justifyContent: "center",
+    borderWidth: 1,
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });

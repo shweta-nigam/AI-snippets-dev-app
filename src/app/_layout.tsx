@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { initDB } from "@/db/db";
 import { useEffect } from "react";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { TimerProvider } from "@/context/TimerContext";
 
 export default function RootLayout() {
   useEffect(() => {
@@ -10,11 +11,13 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      />
+      <TimerProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
+      </TimerProvider>
     </ThemeProvider>
   );
 }

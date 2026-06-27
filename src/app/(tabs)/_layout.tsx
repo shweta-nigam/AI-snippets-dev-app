@@ -12,12 +12,25 @@ import {
   Clock,
 } from "lucide-react-native";
 import { useTheme } from "@/context/ThemeContext";
+import { useTimer } from "@/context/TimerContext";
+import { CustomModal } from "@/components/CustomModal";
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const { isTimerRunning, focusMode, blockNavigationModalVisible, setBlockNavigationModalVisible } = useTimer();
+
+  const preventNavigationListener = {
+    tabPress: (e: any) => {
+      if (isTimerRunning && focusMode) {
+        e.preventDefault();
+        setBlockNavigationModalVisible(true);
+      }
+    },
+  };
 
   return (
-    <Tabs
+    <>
+      <Tabs
       screenOptions={{
         headerShown: false,
 
@@ -78,6 +91,7 @@ export default function TabsLayout() {
       {/* HOME */}
       <Tabs.Screen
         name="index"
+        listeners={preventNavigationListener}
         options={{
           title: "Home",
 
@@ -106,6 +120,7 @@ export default function TabsLayout() {
       {/* SNIPPETS */}
       <Tabs.Screen
         name="snippets"
+        listeners={preventNavigationListener}
         options={{
           title: "Snippets",
 
@@ -134,6 +149,7 @@ export default function TabsLayout() {
       {/* CREATE */}
       <Tabs.Screen
         name="create"
+        listeners={preventNavigationListener}
         options={{
           title: "Create",
 
@@ -207,6 +223,7 @@ export default function TabsLayout() {
       {/* AI */}
       <Tabs.Screen
         name="ai"
+        listeners={preventNavigationListener}
         options={{
           title: "AI",
 
@@ -232,5 +249,15 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
-  );
+    <CustomModal
+      visible={blockNavigationModalVisible}
+      title="Stay Focused! 🎯"
+      message="Focus Mode is active. Complete or pause your timer before leaving the screen to keep your productivity streak going!"
+      type="warning"
+      confirmLabel="Got It"
+      onClose={() => setBlockNavigationModalVisible(false)}
+      onConfirm={() => setBlockNavigationModalVisible(false)}
+    />
+  </>
+);
 }

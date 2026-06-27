@@ -8,6 +8,8 @@ import {
   FlatList,
   TextInput,
   ScrollView,
+  AppState,
+  BackHandler,
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import {
@@ -23,13 +25,21 @@ import {
 import { createSession, updateSession, getAllSessions, ISession } from "@/services/session.service";
 import { CustomModal } from "@/components/CustomModal";
 import { useTheme } from "@/context/ThemeContext";
+import { useTimer } from "@/context/TimerContext";
 
 const MERLOT = "#6F1D3A";
 
 export default function TimerScreen() {
   const { colors } = useTheme();
-  const [seconds, setSeconds] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const {
+    isTimerRunning: isRunning,
+    setIsTimerRunning: setIsRunning,
+    seconds,
+    setSeconds,
+    timerMode,
+    focusMode,
+    setBlockNavigationModalVisible,
+  } = useTimer();
   const [sessionType, setSessionType] = useState<"Coding" | "Study" | "Project">("Coding");
   const [projectTitle, setProjectTitle] = useState("");
   const [resumingSessionId, setResumingSessionId] = useState<number | null>(null);
@@ -37,6 +47,57 @@ export default function TimerScreen() {
   const [visibleCount, setVisibleCount] = useState(10);
 
   const intervalRef = useRef<any>(null);
+
+  // Intercept Back Button on Android in Focus Mode
+  useEffect(() => {
+    const onBackPress = () => {
+      if (isRunning && focusMode) {
+        setBlockNavigationModalVisible(true);
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isRunning, focusMode, setBlockNavigationModalVisible]);
+
+  // Handle background / foreground transitions (Timer Mode: Keep Running vs App Only)
+  const appStateRef = useRef(AppState.currentState);
+  const backgroundTimeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: any) => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === "active") {
+        if (isRunning && timerMode === "keep_running" && backgroundTimeRef.current) {
+          const elapsed = Math.round((Date.now() - backgroundTimeRef.current) / 1000);
+          if (elapsed > 0) {
+            setSeconds((prev) => prev + elapsed);
+          }
+        }
+        backgroundTimeRef.current = null;
+      }
+
+      if (nextAppState.match(/inactive|background/)) {
+        if (isRunning) {
+          backgroundTimeRef.current = Date.now();
+          if (timerMode === "app_only") {
+            setIsRunning(false);
+          }
+        }
+      }
+      appStateRef.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [isRunning, timerMode, setIsRunning, setSeconds]);
 
   // Modal State
   const [modalVisible, setModalVisible] = useState(false);
